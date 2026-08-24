@@ -1,0 +1,17 @@
+{
+  "responsavel": "gustavo",
+  "tarefas": [
+    {
+      "id": "T-001",
+      "titulo": "Modelar sistema de gerenciamento de projeto",
+      "descricao": "...",
+      "status": "fazendo",
+      "prioridade": "alta",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-08-23T14:30:00",
+      "atualizado_em": "2026-08-24T01:32:13",
+      "atualizado_por": "gustavo"
+    }
+  ]
+}

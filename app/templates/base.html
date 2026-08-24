@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Gerenciador de Software{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/estilo.css">
+</head>
+<body>
+  {% if eu is defined and eu %}
+  <div class="barra">
+    <span class="barra__eu" style="--cor-dono: {{ eu.cor }}">
+      <span class="pessoa__inicial pessoa__inicial--mini">{{ eu.nome[0]|upper }}</span>
+      {{ eu.nome }}
+      <span class="barra__perfil">{{ eu.perfil.value }}</span>
+    </span>
+
+    <nav class="navegacao">
+      {% set atual = request.url.path %}
+      <a class="navegacao__item {% if atual == '/' %}navegacao__item--ativo{% endif %}" href="/">Board</a>
+      <a class="navegacao__item {% if atual == '/equipe' %}navegacao__item--ativo{% endif %}" href="/equipe">Equipe</a>
+      <a class="navegacao__item {% if atual == '/stack' %}navegacao__item--ativo{% endif %}" href="/stack">Stack</a>
+    </nav>
+
+    <a class="barra__sair" href="/sair">Trocar de pessoa</a>
+  </div>
+  {% endif %}
+
+  <main>
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape">
+    {% if projeto is defined and projeto.links.repositorio %}
+      <a href="{{ projeto.links.repositorio }}" target="_blank" rel="noopener">
+        Repositorio no GitHub
+      </a>
+    {% endif %}
+  </footer>
+</body>
+</html>

@@ -1,0 +1,707 @@
+/* --------------------------------------------------------------------
+   Gerenciador de Software — folha unica.
+   Cromatismo neutro de proposito: as cores fortes vem dos dados (cada
+   membro tem a sua), entao a interface precisa dar espaco a elas.
+   -------------------------------------------------------------------- */
+
+:root {
+  --tinta:        #16181D;
+  --tinta-fraca:  #6B7280;
+  --fundo:        #F4F5F7;
+  --superficie:   #FFFFFF;
+  --linha:        #E3E6EB;
+  --acento:       #2E3192;
+  --alerta:       #B4322A;
+
+  --mono: ui-monospace, "Cascadia Mono", "Consolas", "SF Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --raio: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 28px 32px 16px;
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---------- Cabecalho ---------- */
+
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--linha);
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+
+.cabecalho h1 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.prazo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--acento);
+  border-radius: var(--raio);
+}
+
+.prazo--urgente { border-left-color: var(--alerta); }
+
+.prazo__rotulo   { font-weight: 600; }
+.prazo__contagem { color: var(--tinta-fraca); }
+.prazo--urgente .prazo__contagem { color: var(--alerta); font-weight: 600; }
+
+.prazo__data {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--tinta-fraca);
+}
+
+/* ---------- Codigos: o vocabulario do sistema ---------- */
+
+.cod {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--acento);
+}
+
+.cod--fraco { color: var(--tinta-fraca); font-weight: 500; }
+
+/* ---------- Alerta de integridade ---------- */
+
+.alerta {
+  margin: 20px 0 0;
+  padding: 12px 16px;
+  background: var(--superficie);
+  border: 1px solid var(--alerta);
+  border-radius: var(--raio);
+}
+
+.alerta__titulo {
+  margin: 0 0 6px;
+  font-weight: 600;
+  color: var(--alerta);
+}
+
+.alerta ul { margin: 0; padding-left: 18px; }
+.alerta li { font-family: var(--mono); font-size: 12px; }
+
+/* ---------- Board ---------- */
+
+.board {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  padding-bottom: 12px;
+  overflow-x: auto;
+  align-items: flex-start;
+}
+
+.coluna {
+  flex: 0 0 264px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.coluna__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--linha);
+}
+
+.coluna__topo h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.medidor {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tinta-fraca);
+}
+
+.medidor__limite { font-weight: 400; opacity: 0.65; }
+
+.coluna__topo--estourado { border-bottom-color: var(--alerta); }
+.coluna__topo--estourado .medidor { color: var(--alerta); }
+
+.coluna__lista { display: flex; flex-direction: column; gap: 8px; }
+
+/* ---------- Cartao ---------- */
+
+.cartao {
+  position: relative;
+  padding: 11px 13px 11px 16px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  overflow: hidden;
+}
+
+/* Faixa da cor do responsavel: identifica o dono antes da leitura. */
+.cartao::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--cor-dono, var(--linha));
+}
+
+.cartao__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.cartao__titulo {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.35;
+}
+
+.cartao__base {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--tinta-fraca);
+}
+
+.prioridade {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+
+.prioridade--alta  { color: var(--alerta); font-weight: 600; }
+.prioridade--baixa { opacity: 0.6; }
+
+.vazio {
+  margin: 0;
+  padding: 14px 0;
+  font-size: 12px;
+  color: var(--tinta-fraca);
+  text-align: center;
+}
+
+/* ---------- Erro ---------- */
+
+.tela-erro { max-width: 620px; }
+.tela-erro h1 { margin: 0 0 16px; font-size: 22px; }
+
+.tela-erro__detalhe {
+  padding: 14px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--alerta);
+  border-radius: var(--raio);
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+/* ---------- Rodape ---------- */
+
+.rodape {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--linha);
+  font-size: 12px;
+}
+
+.rodape a { color: var(--acento); text-decoration: none; }
+.rodape a:hover { text-decoration: underline; }
+
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  body { padding: 20px 16px 12px; }
+  .coluna { flex-basis: 232px; }
+}
+
+/* ====================================================================
+   CRUD
+   ==================================================================== */
+
+.cabecalho__direita {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Botoes ---------- */
+
+.botao {
+  display: inline-block;
+  padding: 8px 15px;
+  background: var(--acento);
+  color: #fff;
+  border: 1px solid var(--acento);
+  border-radius: var(--raio);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.botao:hover { filter: brightness(1.15); }
+
+.botao--fantasma {
+  background: transparent;
+  color: var(--tinta-fraca);
+  border-color: var(--linha);
+  font-weight: 500;
+}
+
+.botao--fantasma:hover { color: var(--tinta); filter: none; }
+
+.botao--perigo {
+  background: transparent;
+  color: var(--alerta);
+  border-color: var(--alerta);
+}
+
+/* Cartao virou link: preserva o layout de bloco. */
+.cartao { display: block; color: inherit; text-decoration: none; }
+.cartao:hover { border-color: var(--cor-dono); }
+.cartao__topo, .cartao__base { display: flex; }
+.cartao__titulo { display: block; }
+
+/* ---------- Formulario ---------- */
+
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  max-width: 780px;
+  margin-top: 26px;
+}
+
+.campo { display: flex; flex-direction: column; gap: 5px; }
+.campo--largo { grid-column: 1 / -1; }
+
+.campo__rotulo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+
+.campo__ajuda { font-size: 12px; color: var(--tinta-fraca); }
+
+.campo input,
+.campo select,
+.campo textarea {
+  padding: 8px 10px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--tinta);
+}
+
+.campo textarea { font-family: var(--mono); font-size: 13px; resize: vertical; }
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus { outline: 2px solid var(--acento); outline-offset: 1px; }
+
+/* Quem assina a alteracao fica destacado: e o campo que as pessoas esquecem. */
+.campo--assinatura {
+  grid-column: 1 / -1;
+  padding: 12px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--acento);
+  border-radius: var(--raio);
+}
+
+.formulario__acoes { grid-column: 1 / -1; }
+
+.excluir {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  max-width: 780px;
+  margin-top: 34px;
+  padding-top: 18px;
+  border-top: 1px solid var(--linha);
+}
+
+/* ====================================================================
+   PERFIL
+   ==================================================================== */
+
+/* ---------- Barra de perfil ---------- */
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--linha);
+  font-size: 13px;
+}
+
+.barra__eu { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+
+.barra__perfil {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--tinta-fraca);
+}
+
+.barra__sair {
+  margin-left: auto;
+  color: var(--tinta-fraca);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.barra__sair:hover { color: var(--tinta); text-decoration: underline; }
+
+/* ---------- Filtro ---------- */
+
+.filtro {
+  display: inline-flex;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  overflow: hidden;
+}
+
+.filtro__opcao {
+  padding: 5px 12px;
+  background: var(--superficie);
+  color: var(--tinta-fraca);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.filtro__opcao--ativo { background: var(--acento); color: #fff; }
+
+/* ---------- Tela de entrada ---------- */
+
+.entrada__nota {
+  max-width: 520px;
+  margin: 22px 0 0;
+  color: var(--tinta-fraca);
+}
+
+.entrada {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  max-width: 700px;
+  margin-top: 20px;
+}
+
+.entrada form { margin: 0; }
+
+.pessoa {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  padding: 16px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--cor-dono);
+  border-radius: var(--raio);
+  font-family: var(--sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pessoa:hover { border-color: var(--cor-dono); }
+
+.pessoa__inicial {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 6px;
+  background: var(--cor-dono);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pessoa__inicial--mini {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.pessoa__nome { font-size: 14px; font-weight: 600; color: var(--tinta); }
+
+.pessoa__papeis {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+
+/* Destaque discreto para o que e meu quando o board mostra todo mundo. */
+.cartao--meu { box-shadow: inset 0 0 0 1px var(--cor-dono); }
+
+/* Assinatura virou texto, nao mais um campo. */
+p.campo--assinatura { margin: 0; font-size: 13px; color: var(--tinta-fraca); }
+
+/* ====================================================================
+   MOVER CARD
+   ==================================================================== */
+
+.cartao { cursor: grab; }
+.cartao:active { cursor: grabbing; }
+
+/* Buraco onde o cartao vai cair. */
+.cartao--fantasma {
+  opacity: 0.35;
+  background: var(--fundo);
+}
+
+/* O cartao que esta na mao. */
+.cartao--pego {
+  box-shadow: 0 8px 20px rgba(22, 24, 29, 0.16);
+  transform: rotate(-1deg);
+}
+
+/* Area de soltar precisa existir mesmo com a coluna vazia. */
+.coluna__lista { min-height: 60px; }
+
+/* ---------- Aviso de falha ---------- */
+
+.aviso {
+  margin: 18px 0 0;
+  padding: 10px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--alerta);
+  border-left: 3px solid var(--alerta);
+  border-radius: var(--raio);
+  color: var(--alerta);
+  font-size: 13px;
+}
+
+.aviso[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao--pego { transform: none; }
+}
+
+/* ====================================================================
+   EQUIPE/STACK
+   ==================================================================== */
+
+/* ---------- Navegacao ---------- */
+
+.navegacao { display: flex; gap: 4px; }
+
+.navegacao__item {
+  padding: 5px 12px;
+  border-radius: var(--raio);
+  color: var(--tinta-fraca);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.navegacao__item:hover { color: var(--tinta); background: var(--superficie); }
+
+.navegacao__item--ativo {
+  color: var(--tinta);
+  font-weight: 650;
+  box-shadow: inset 0 -2px 0 var(--acento);
+  border-radius: 0;
+}
+
+/* ---------- Equipe ---------- */
+
+.docente { margin: 0; text-align: right; }
+.docente .campo__rotulo { display: block; }
+
+.pessoas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.ficha {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-top: 3px solid var(--cor-dono);
+  border-radius: var(--raio);
+}
+
+.ficha__topo { display: flex; align-items: center; gap: 12px; }
+.ficha__topo .pessoa__inicial { margin: 0; }
+
+.ficha__nome { margin: 0; font-size: 16px; font-weight: 650; }
+
+.ficha__papeis {
+  margin: 2px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+
+.ficha__carga { margin: 0; font-size: 13px; color: var(--tinta-fraca); }
+.ficha__carga strong { font-size: 20px; color: var(--tinta); }
+
+/* Distribuicao das tarefas: cada faixa e uma coluna do board, mais
+   opaca conforme avanca no fluxo. */
+.carga {
+  display: flex;
+  gap: 2px;
+  height: 7px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.carga__parte { background: var(--cor-dono); }
+
+.ficha__detalhe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--tinta-fraca);
+}
+
+.ficha__github {
+  margin-top: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--acento);
+  text-decoration: none;
+}
+
+.ficha__github:hover { text-decoration: underline; }
+
+.vazio--esquerda { padding: 0; text-align: left; }
+
+.rodape-nota { margin-top: 20px; font-size: 13px; color: var(--tinta-fraca); }
+
+/* ---------- Stack ---------- */
+
+.produto {
+  max-width: 640px;
+  margin: 22px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.camadas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.camada {
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+}
+
+.camada__rotulo {
+  margin: 0 0 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+
+.camada__tecnologia {
+  margin: 0 0 9px;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.camada__justificativa { margin: 0; font-size: 13px; line-height: 1.55; }
+
+/* Justificativa e o que diferencia lista de tecnologia de decisao
+   arquitetural. A falta fica visivel de proposito. */
+.camada__justificativa--falta { color: var(--alerta); font-style: italic; opacity: 0.8; }
+
+.camada__dono {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--tinta-fraca);
+}
+
+.ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-dono, var(--linha));
+}

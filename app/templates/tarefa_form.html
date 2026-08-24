@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block titulo %}{% if tarefa %}Editar {{ tarefa.id }}{% else %}Nova tarefa{% endif %}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">
+      {% if tarefa %}<span class="cod">{{ tarefa.id }}</span> · editando{% else %}nova tarefa{% endif %}
+    </p>
+    <h1>{% if tarefa %}{{ tarefa.titulo }}{% else %}Criar tarefa{% endif %}</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/">Voltar ao board</a>
+</header>
+
+<form class="formulario"
+      method="post"
+      action="{% if tarefa %}/tarefa/{{ tarefa.id }}/editar{% else %}/tarefa/nova{% endif %}">
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Titulo</span>
+    <input name="titulo" required maxlength="120" autofocus
+           value="{{ tarefa.titulo if tarefa else '' }}">
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Descricao</span>
+    <textarea name="descricao" rows="5"
+              placeholder="Aceita Markdown. Use - [ ] para checklist.">{{ tarefa.descricao if tarefa else '' }}</textarea>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Responsavel</span>
+    <select name="responsavel">
+      <option value="">Sem responsavel</option>
+      {% for m in membros %}
+        <option value="{{ m.id }}" {% if responsavel_atual == m.id %}selected{% endif %}>{{ m.nome }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Coluna</span>
+    <select name="status">
+      {% for c in colunas %}
+        <option value="{{ c.id }}" {% if tarefa and tarefa.status == c.id %}selected{% endif %}>{{ c.nome }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Prioridade</span>
+    <select name="prioridade">
+      {% for p in prioridades %}
+        <option value="{{ p }}" {% if tarefa and tarefa.prioridade.value == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Entrega</span>
+    <select name="entrega">
+      <option value="">Nenhuma</option>
+      {% for e in entregas %}
+        <option value="{{ e.id }}" {% if tarefa and tarefa.entrega == e.id %}selected{% endif %}>{{ e.id }} — {{ e.nome }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <p class="campo--assinatura">
+    Salvando como <strong>{{ eu.nome }}</strong> — fica registrado como autor da alteracao.
+  </p>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">
+      {% if tarefa %}Salvar alteracoes{% else %}Criar tarefa{% endif %}
+    </button>
+  </div>
+</form>
+
+{% if tarefa %}
+<form class="excluir"
+      method="post"
+      action="/tarefa/{{ tarefa.id }}/excluir"
+      onsubmit="return confirm('Excluir {{ tarefa.id }}? Essa ação não pode ser desfeita.')">
+  <button class="botao botao--perigo" type="submit">Excluir tarefa</button>
+  <span class="campo__ajuda">Criada em {{ tarefa.criado_em.strftime('%d/%m/%Y') }} ·
+    ultima alteracao por {{ tarefa.atualizado_por }} em {{ tarefa.atualizado_em.strftime('%d/%m %H:%M') }}</span>
+</form>
+{% endif %}
+{% endblock %}

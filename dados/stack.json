@@ -1,0 +1,17 @@
+{
+  "produto": {
+    "nome": "Rede Social",
+    "descricao": "Rede social com feed de amigos, curtidas e comentários, com moderação automática de conteúdo por IA antes da publicação."
+  },
+  "itens": [
+    {"camada": "Backend", "tecnologia": "PHP", "responsavel": "floriano", "justificativa": "" },
+    { "camada": "Frontend", "tecnologia": "React", "responsavel": "bruno", "justificativa": "" },
+    { "camada": "Mobile", "tecnologia": "React Native", "responsavel": "luca", "justificativa": "" },
+    { "camada": "Banco de Dados", "tecnologia": "PostgreSQL", "responsavel": null, "justificativa": "" },
+    { "camada": "IA", "tecnologia": "Claude (API)", "responsavel": null, "justificativa": "" },
+    { "camada": "Servidor", "tecnologia": "Linux", "responsavel": "fabrin", "justificativa": "" },
+    { "camada": "Hospedagem", "tecnologia": "Hostinger", "responsavel": null, "justificativa": "" },
+    { "camada": "Containerização", "tecnologia": "Docker", "responsavel": null, "justificativa": "" },
+    { "camada": "Controle de Versão", "tecnologia": "GitHub", "responsavel": null, "justificativa": "" }
+  ]
+}

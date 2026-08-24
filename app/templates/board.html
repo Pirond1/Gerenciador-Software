@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block titulo %}Board — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">{{ projeto.disciplina }}</p>
+    <h1>{{ projeto.nome }}</h1>
+  </div>
+
+  <div class="cabecalho__direita">
+    <span class="filtro">
+      <a class="filtro__opcao {% if escopo == 'meus' %}filtro__opcao--ativo{% endif %}" href="/?ver=meus">Minhas</a>
+      <a class="filtro__opcao {% if escopo == 'todos' %}filtro__opcao--ativo{% endif %}" href="/?ver=todos">Todas</a>
+    </span>
+    {% if entrega %}
+    <div class="prazo {% if dias is not none and dias < 3 %}prazo--urgente{% endif %}">
+      <span class="prazo__rotulo">
+        <span class="cod">{{ entrega.id }}</span> {{ entrega.nome }}
+      </span>
+      <span class="prazo__contagem">
+        {% if dias > 1 %}faltam {{ dias }} dias
+        {% elif dias == 1 %}falta 1 dia
+        {% elif dias == 0 %}entrega hoje
+        {% else %}{{ -dias }} dia(s) em atraso{% endif %}
+      </span>
+      <span class="prazo__data">{{ entrega.prazo.strftime('%d/%m') }}</span>
+    </div>
+    {% endif %}
+    {% if editavel %}<a class="botao" href="/tarefa/nova">Nova tarefa</a>{% endif %}
+  </div>
+</header>
+
+{% if problemas %}
+<section class="alerta">
+  <p class="alerta__titulo">{{ problemas|length }} inconsistencia(s) nos dados — corrija antes de commitar</p>
+  <ul>
+    {% for p in problemas %}<li>{{ p }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<p class="aviso" data-aviso hidden></p>
+
+<div class="board">
+  {% for coluna in colunas %}
+  {% set qtd = coluna.cartoes|length %}
+  {% set estourou = coluna.dados.wip_limite and qtd > coluna.dados.wip_limite %}
+  <section class="coluna">
+    <div class="coluna__topo {% if estourou %}coluna__topo--estourado{% endif %}">
+      <h2>{{ coluna.dados.nome }}</h2>
+      <span class="medidor">
+        <span data-contagem>{{ qtd }}</span>{% if coluna.dados.wip_limite %}<span class="medidor__limite">/{{ coluna.dados.wip_limite }}</span>{% endif %}
+      </span>
+    </div>
+
+    <div class="coluna__lista" data-coluna="{{ coluna.dados.id }}"
+         data-wip="{{ coluna.dados.wip_limite or 0 }}">
+      {% for cartao in coluna.cartoes %}
+      {% set t = cartao.tarefa %}
+      {% set etiqueta = 'a' if editavel else 'article' %}
+      <{{ etiqueta }} class="cartao {% if cartao.chave == eu.id %}cartao--meu{% endif %}"
+         data-tarefa="{{ t.id }}"
+         {% if editavel %}href="/tarefa/{{ t.id }}/editar"{% endif %}
+         style="--cor-dono: {{ cartao.cor }}">
+        <span class="cartao__topo">
+          <span class="cod">{{ t.id }}</span>
+          <span class="prioridade prioridade--{{ t.prioridade.value }}">{{ t.prioridade.value }}</span>
+        </span>
+
+        <span class="cartao__titulo">{{ t.titulo }}</span>
+
+        <span class="cartao__base">
+          <span class="dono">{{ cartao.responsavel }}</span>
+          {% if t.entrega %}<span class="cod cod--fraco">{{ t.entrega }}</span>{% endif %}
+        </span>
+      </{{ etiqueta }}>
+      {% else %}
+      <p class="vazio">Nada aqui.</p>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% if editavel %}
+<script src="/static/js/Sortable.min.js"></script>
+<script src="/static/js/board.js"></script>
+{% endif %}
+{% endblock %}

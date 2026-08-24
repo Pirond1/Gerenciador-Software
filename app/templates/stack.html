@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titulo %}Stack — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">stack de tecnologia</p>
+    <h1>{{ stack.produto.nome }}</h1>
+  </div>
+</header>
+
+{% if stack.produto.descricao %}
+<p class="produto">{{ stack.produto.descricao }}</p>
+{% endif %}
+
+<div class="camadas">
+  {% for item in stack.itens %}
+  {% set dono = membros.get(item.responsavel) %}
+  <article class="camada" {% if dono %}style="--cor-dono: {{ dono.cor }}"{% endif %}>
+    <p class="camada__rotulo">{{ item.camada }}</p>
+    <h2 class="camada__tecnologia">{{ item.tecnologia }}</h2>
+
+    {% if item.justificativa %}
+    <p class="camada__justificativa">{{ item.justificativa }}</p>
+    {% else %}
+    <p class="camada__justificativa camada__justificativa--falta">Sem justificativa registrada.</p>
+    {% endif %}
+
+    {% if dono %}
+    <p class="camada__dono"><span class="ponto"></span>{{ dono.nome }}</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Quem esta usando?{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">{{ projeto.disciplina }}</p>
+    <h1>Quem esta usando?</h1>
+  </div>
+</header>
+
+<p class="entrada__nota">
+  A escolha define a visao do board e assina as alteracoes que voce fizer.
+  Nao ha senha: quem tem o repositorio ja tem todos os dados.
+</p>
+
+<div class="entrada">
+  {% for m in membros %}
+  <form method="post" action="/entrar">
+    <input type="hidden" name="membro" value="{{ m.id }}">
+    <button class="pessoa" type="submit" style="--cor-dono: {{ m.cor }}">
+      <span class="pessoa__inicial">{{ m.nome[0]|upper }}</span>
+      <span class="pessoa__nome">{{ m.nome }}</span>
+      <span class="pessoa__papeis">
+        {% if m.perfil.value == 'professor' %}docente
+        {% else %}{{ m.papeis|map(attribute='value')|join(' · ') }}{% endif %}
+      </span>
+    </button>
+  </form>
+  {% endfor %}
+</div>
+{% endblock %}

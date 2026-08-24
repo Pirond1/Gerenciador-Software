@@ -1,0 +1,33 @@
+{
+  "nome": "Fábrica de Software - [nome do produto]",
+  "disciplina": "Avaliação e Qualidade de Software",
+  "professor": "Alisson Kuhn",
+  "semestre": "2026/2",
+  "links": {
+    "repositorio": "https://github.com/...",
+    "drive": null
+  },
+  "colunas": [
+    { "id": "backlog",   "nome": "Backlog" },
+    { "id": "a_fazer",   "nome": "A Fazer" },
+    { "id": "fazendo",   "nome": "Fazendo", "wip_limite": 2 },
+    { "id": "revisao",   "nome": "Em Revisão" },
+    { "id": "concluido", "nome": "Concluído" }
+  ],
+  "entregas": [
+    {
+      "id": "E1",
+      "nome": "ERS e organização da equipe",
+      "prazo": "2026-09-04",
+      "descricao": "Board, equipe, stack, repositório e ERS completa",
+      "concluida": false
+    },
+    {
+      "id": "E2",
+      "nome": "Segunda entrega",
+      "prazo": null,
+      "descricao": "A definir",
+      "concluida": false
+    }
+  ]
+}

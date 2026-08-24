@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Erro ao carregar os dados{% endblock %}
+
+{% block conteudo %}
+<section class="tela-erro">
+  <p class="eyebrow">Falha na leitura</p>
+  <h1>Os dados nao puderam ser carregados</h1>
+  <pre class="tela-erro__detalhe">{{ mensagem }}</pre>
+  <p>Rode <code>python validar.py</code> na raiz para localizar o arquivo com problema.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block titulo %}Equipe — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">organizacao da equipe</p>
+    <h1>Quem faz o que</h1>
+  </div>
+  {% if docente %}
+  <p class="docente">
+    <span class="campo__rotulo">Docente</span>
+    <strong>{{ docente.nome }}</strong>
+  </p>
+  {% endif %}
+</header>
+
+<div class="pessoas">
+  {% for f in fichas %}
+  {% set m = f.membro %}
+  <article class="ficha" style="--cor-dono: {{ m.cor }}">
+    <div class="ficha__topo">
+      <span class="pessoa__inicial">{{ m.nome[0]|upper }}</span>
+      <div>
+        <h2 class="ficha__nome">{{ m.nome }}</h2>
+        <p class="ficha__papeis">{{ m.papeis|map(attribute='value')|join(' · ') }}</p>
+      </div>
+    </div>
+
+    <p class="ficha__carga">
+      <strong>{{ f.total }}</strong> tarefa{{ '' if f.total == 1 else 's' }}
+    </p>
+
+    {% if f.total %}
+    <div class="carga" role="img"
+         aria-label="{% for d in f.distribuicao %}{{ d.nome }}: {{ d.qtd }}. {% endfor %}">
+      {% for d in f.distribuicao %}{% if d.qtd %}
+      <span class="carga__parte"
+            style="flex: {{ d.qtd }}; opacity: {{ 0.28 + loop.index0 * (0.72 / (f.distribuicao|length)) }}"
+            title="{{ d.nome }}: {{ d.qtd }}"></span>
+      {% endif %}{% endfor %}
+    </div>
+    <ul class="ficha__detalhe">
+      {% for d in f.distribuicao %}{% if d.qtd %}
+      <li>{{ d.nome }} <span class="medidor">{{ d.qtd }}</span></li>
+      {% endif %}{% endfor %}
+    </ul>
+    {% else %}
+    <p class="vazio vazio--esquerda">Nenhuma tarefa atribuida ainda.</p>
+    {% endif %}
+
+    {% if m.github %}
+    <a class="ficha__github" href="https://github.com/{{ m.github }}" target="_blank" rel="noopener">
+      @{{ m.github }}
+    </a>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+
+{% if sem_dono %}
+<p class="rodape-nota">
+  <span class="cod cod--fraco">{{ sem_dono }}</span> tarefa(s) ainda sem responsavel.
+</p>
+{% endif %}
+{% endblock %}

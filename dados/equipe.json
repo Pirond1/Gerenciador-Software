@@ -1,0 +1,52 @@
+{
+  "membros": [
+    {
+      "id": "gustavo",
+      "nome": "Gustavo",
+      "papeis": ["gestao"],
+      "perfil": "admin",
+      "cor": "#0a0a0a",
+      "github": "Pirond1"
+    },
+    {
+      "id": "luca",
+      "nome": "Luca",
+      "papeis": ["mobile"],
+      "perfil": "membro",
+      "cor": "#0a0a0a",
+      "github": "Pirond1"
+    },
+    {
+      "id": "fabrin",
+      "nome": "Fabrin",
+      "papeis": ["qa"],
+      "perfil": "membro",
+      "cor": "#0a0a0a",
+      "github": "Pirond1"
+    },
+    {
+      "id": "floriano",
+      "nome": "Pedro",
+      "papeis": ["back"],
+      "perfil": "membro",
+      "cor": "#0a0a0a",
+      "github": "Pirond1"
+    },
+    {
+      "id": "bruno",
+      "nome": "Bruno",
+      "papeis": ["front"],
+      "perfil": "membro",
+      "cor": "#0a0a0a",
+      "github": "Pirond1"
+    },
+    {
+      "id": "professor",
+      "nome": "Professor",
+      "papeis": [],
+      "perfil": "professor",
+      "cor": "#0a0a0a",
+      "github": "Pirond1"
+    }
+  ]
+}
