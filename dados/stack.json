@@ -4,14 +4,14 @@
     "descricao": "Rede social com feed de amigos, curtidas e comentários, com moderação automática de conteúdo por IA antes da publicação."
   },
   "itens": [
-    {"camada": "Backend", "tecnologia": "PHP", "responsavel": "floriano", "justificativa": "" },
-    { "camada": "Frontend", "tecnologia": "React", "responsavel": "bruno", "justificativa": "" },
-    { "camada": "Mobile", "tecnologia": "React Native", "responsavel": "luca", "justificativa": "" },
-    { "camada": "Banco de Dados", "tecnologia": "PostgreSQL", "responsavel": null, "justificativa": "" },
-    { "camada": "IA", "tecnologia": "Claude (API)", "responsavel": null, "justificativa": "" },
-    { "camada": "Servidor", "tecnologia": "Linux", "responsavel": "fabrin", "justificativa": "" },
-    { "camada": "Hospedagem", "tecnologia": "Hostinger", "responsavel": null, "justificativa": "" },
-    { "camada": "Containerização", "tecnologia": "Docker", "responsavel": null, "justificativa": "" },
-    { "camada": "Controle de Versão", "tecnologia": "GitHub", "responsavel": null, "justificativa": "" }
+    {"camada": "Backend", "tecnologia": "PHP", "responsavel": "floriano", "justificativa": "Bom desempenho e comunicação com o servidor Linux" },
+    { "camada": "Frontend", "tecnologia": "React", "responsavel": "bruno", "justificativa": "Por ser atual e bem forte na comunicação geral com o projeto" },
+    { "camada": "Mobile", "tecnologia": "React Native", "responsavel": "luca", "justificativa": "Por ser uma linguagem que temos um conhecimento de outras matérias" },
+    { "camada": "Banco de Dados", "tecnologia": "PostgreSQL", "responsavel": null, "justificativa": "Banco de dados estrutural facilita a estrutura que pensamos e o desempenho" },
+    { "camada": "IA", "tecnologia": "Claude (API)", "responsavel": null, "justificativa": "Uma da IAs mais poderosas do momento e com conhecimento dos desenvolvedores" },
+    { "camada": "Servidor", "tecnologia": "Linux", "responsavel": "fabrin", "justificativa": "Maior ambientação por ja ter trabalhado em outros projetos" },
+    { "camada": "Hospedagem", "tecnologia": "Hostinger", "responsavel": null, "justificativa": "Pelo fluidez e estabilidade, além da segurança apresentada" },
+    { "camada": "Containerização", "tecnologia": "Docker", "responsavel": null, "justificativa": "Por conhecimento e facilidade" },
+    { "camada": "Controle de Versão", "tecnologia": "GitHub", "responsavel": null, "justificativa": "Por granhde conhecimento dos desenvolvedores" }
   ]
 }

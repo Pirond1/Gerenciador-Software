@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block titulo %}Sincronizar — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">controle de versao</p>
+    <h1>Sincronizar</h1>
+  </div>
+  {% if git %}<span class="selo">{{ git.ramo }}</span>{% endif %}
+</header>
+
+{% if not git %}
+<p class="vazio vazio--esquerda">Esta pasta nao e um repositorio Git, ou o git nao esta instalado.</p>
+{% else %}
+
+<div class="sync">
+  <section class="sync__estado">
+    <div class="sync__numeros">
+      <div class="sync__num">
+        <span class="sync__valor">{{ git.atras }}</span>
+        <span class="sync__rotulo">para baixar</span>
+      </div>
+      <div class="sync__num">
+        <span class="sync__valor">{{ git.alteracoes }}</span>
+        <span class="sync__rotulo">alteradas aqui</span>
+      </div>
+      <div class="sync__num">
+        <span class="sync__valor">{{ git.frente }}</span>
+        <span class="sync__rotulo">para enviar</span>
+      </div>
+    </div>
+
+    {% if not git.tem_upstream %}
+    <p class="sync__aviso">
+      O ramo <strong>{{ git.ramo }}</strong> nao tem upstream configurado, entao
+      as contagens de enviar/baixar nao aparecem. Rode uma vez no terminal:
+      <code>git push -u origin {{ git.ramo }}</code>
+    </p>
+    {% endif %}
+
+    {% if git.arquivos %}
+    <p class="campo__rotulo">Arquivos alterados</p>
+    <ul class="sync__arquivos">
+      {% for a in git.arquivos %}<li>{{ a }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <section class="sync__acoes">
+    <form method="post" action="/sincronizar/baixar">
+      <button class="botao botao--fantasma" type="submit">Baixar do GitHub</button>
+      <p class="campo__ajuda">Traz o que os outros enviaram. Se o historico tiver
+        divergido, recusa e pede resolucao manual — nunca gera merge automatico.</p>
+    </form>
+
+    <form method="post" action="/sincronizar/enviar" class="sync__enviar">
+      <label class="campo">
+        <span class="campo__rotulo">Mensagem do commit</span>
+        <input name="mensagem" maxlength="120" placeholder="{{ sugestao }}">
+      </label>
+      <button class="botao" type="submit" {% if problemas %}disabled{% endif %}>
+        Enviar ao GitHub
+      </button>
+      <p class="campo__ajuda">
+        {% if problemas %}
+        Bloqueado: {{ problemas|length }} inconsistencia(s) nos dados.
+        {% else %}
+        Commita <code>dados/</code>, baixa o que faltar e envia.
+        {% endif %}
+      </p>
+    </form>
+  </section>
+</div>
+
+{% if resultado %}
+<section class="saida {% if resultado.ok %}saida--ok{% else %}saida--erro{% endif %}">
+  <p class="saida__titulo">
+    {{ resultado.acao }} — {% if resultado.ok %}concluido{% else %}falhou{% endif %}
+  </p>
+
+  {% if resultado.passos %}
+    {% for nome, ok, texto in resultado.passos %}
+    <p class="saida__passo">{% if ok %}✓{% else %}✕{% endif %} {{ nome }}</p>
+    {% if texto %}<pre>{{ texto }}</pre>{% endif %}
+    {% endfor %}
+  {% elif resultado.saida %}
+    <pre>{{ resultado.saida }}</pre>
+  {% endif %}
+</section>
+{% endif %}
+
+{% endif %}
+{% endblock %}

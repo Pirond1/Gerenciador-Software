@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}{% if entrega %}Editar {{ entrega.id }}{% else %}Nova entrega{% endif %}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow"><span class="cod">{{ proximo }}</span> · {% if entrega %}editando{% else %}nova entrega{% endif %}</p>
+    <h1>{% if entrega %}{{ entrega.nome }}{% else %}Cadastrar entrega{% endif %}</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/entregas">Voltar</a>
+</header>
+
+<form class="formulario" method="post" action="/entrega/salvar">
+  <input type="hidden" name="entrega_id" value="{{ entrega.id if entrega else '' }}">
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Nome</span>
+    <input name="nome" required maxlength="120" autofocus
+           value="{{ entrega.nome if entrega else '' }}">
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Prazo</span>
+    <input type="date" name="prazo"
+           value="{{ entrega.prazo.isoformat() if entrega and entrega.prazo else '' }}">
+    <span class="campo__ajuda">Pode ficar em branco enquanto a data nao for anunciada.</span>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Descricao</span>
+    <textarea name="descricao" rows="4"
+              placeholder="O que precisa ser entregue.">{{ entrega.descricao if entrega else '' }}</textarea>
+  </label>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">
+      {% if entrega %}Salvar alteracoes{% else %}Criar entrega{% endif %}
+    </button>
+  </div>
+</form>
+{% endblock %}
