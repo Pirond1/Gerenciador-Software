@@ -729,3 +729,17 @@ def git_enviar(request: Request, mensagem: str = Form("")):
         request, eu,
         {"acao": "Enviar ao GitHub", "ok": ok, "passos": passos},
     )
+
+
+@app.post("/sincronizar/verificar")
+def git_verificar(request: Request):
+    """Fetch manual, para quem nao quer esperar a checagem automatica."""
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+
+    ok, saida = gitinfo.verificar_agora(RAIZ)
+    return _tela_git(
+        request, eu,
+        {"acao": "Verificar o servidor", "ok": ok, "saida": saida},
+    )

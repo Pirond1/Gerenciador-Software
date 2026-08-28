@@ -31,6 +31,22 @@
       </div>
     </div>
 
+    <form method="post" action="/sincronizar/verificar" class="sync__verificar">
+      <button class="botao botao--fantasma" type="submit">Verificar agora</button>
+      <span class="campo__ajuda">
+        {% if git.idade_fetch is none %}
+          Nunca consultado nesta copia.
+        {% elif git.idade_fetch < 90 %}
+          Servidor consultado ha instantes.
+        {% elif git.idade_fetch < 3600 %}
+          Servidor consultado ha {{ (git.idade_fetch / 60)|int }} min.
+        {% else %}
+          Servidor consultado ha {{ (git.idade_fetch / 3600)|int }} h.
+        {% endif %}
+        A consulta tambem roda sozinha a cada 3 minutos.
+      </span>
+    </form>
+
     {% if not git.tem_upstream %}
     <p class="sync__aviso">
       O ramo <strong>{{ git.ramo }}</strong> nao tem upstream configurado, entao
