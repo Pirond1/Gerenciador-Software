@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block titulo %}{{ tarefa.id }} — {{ tarefa.titulo }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow"><span class="cod">{{ tarefa.id }}</span></p>
+    <h1>{{ tarefa.titulo }}</h1>
+  </div>
+  <div class="cabecalho__direita">
+    <a class="botao botao--fantasma" href="/">Voltar ao board</a>
+    {% if editavel %}<a class="botao" href="/tarefa/{{ tarefa.id }}/editar">Editar</a>{% endif %}
+  </div>
+</header>
+
+<div class="detalhe">
+  <section class="detalhe__corpo">
+    {% if descricao_html %}
+      <div class="prosa">{{ descricao_html|safe }}</div>
+    {% else %}
+      <p class="vazio vazio--esquerda">Sem descricao.</p>
+    {% endif %}
+  </section>
+
+  <aside class="detalhe__lado">
+    <dl class="atributos">
+      <dt>Responsavel</dt>
+      <dd>
+        {% if dono %}
+        <span class="ponto" style="--cor-dono: {{ dono.cor }}"></span>{{ dono.nome }}
+        {% else %}Sem responsavel{% endif %}
+      </dd>
+
+      <dt>Coluna</dt>
+      <dd>{{ coluna.nome if coluna else tarefa.status }}</dd>
+
+      <dt>Prioridade</dt>
+      <dd class="prioridade prioridade--{{ tarefa.prioridade.value }}">{{ tarefa.prioridade.value }}</dd>
+
+      <dt>Entrega</dt>
+      <dd>
+        {% if entrega %}<span class="cod">{{ entrega.id }}</span> {{ entrega.nome }}
+        {% else %}<span class="tenue">nenhuma</span>{% endif %}
+      </dd>
+
+      <dt>Requisitos</dt>
+      <dd>
+        {% if tarefa.requisitos %}
+          {% for r in tarefa.requisitos %}<span class="cod">{{ r }}</span>{% endfor %}
+        {% else %}<span class="tenue">nenhum vinculado</span>{% endif %}
+      </dd>
+    </dl>
+
+    <p class="detalhe__assinatura">
+      Criada em {{ tarefa.criado_em.strftime('%d/%m/%Y') }}.<br>
+      Ultima alteracao por {{ autor.nome if autor else tarefa.atualizado_por }}
+      em {{ tarefa.atualizado_em.strftime('%d/%m/%Y as %H:%M') }}.
+    </p>
+  </aside>
+</div>
+{% endblock %}

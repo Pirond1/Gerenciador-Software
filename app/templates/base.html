@@ -18,9 +18,21 @@
     <nav class="navegacao">
       {% set atual = request.url.path %}
       <a class="navegacao__item {% if atual == '/' %}navegacao__item--ativo{% endif %}" href="/">Board</a>
+      <a class="navegacao__item {% if atual == '/entregas' %}navegacao__item--ativo{% endif %}" href="/entregas">Entregas</a>
       <a class="navegacao__item {% if atual == '/equipe' %}navegacao__item--ativo{% endif %}" href="/equipe">Equipe</a>
       <a class="navegacao__item {% if atual == '/stack' %}navegacao__item--ativo{% endif %}" href="/stack">Stack</a>
     </nav>
+
+    {% set g = git_estado() %}
+    {% if g %}
+    <a class="git {% if not g.limpo %}git--sujo{% endif %}" href="/sincronizar" title="Sincronizar com o GitHub">
+      <span class="git__ramo">{{ g.ramo }}</span>
+      {% if g.atras %}<span class="git__item git__item--baixar">{{ g.atras }} para baixar</span>{% endif %}
+      {% if g.alteracoes %}<span class="git__item">{{ g.alteracoes }} alterada(s)</span>{% endif %}
+      {% if g.frente %}<span class="git__item">{{ g.frente }} para enviar</span>{% endif %}
+      {% if g.limpo %}<span class="git__item git__item--ok">em dia</span>{% endif %}
+    </a>
+    {% endif %}
 
     <a class="barra__sair" href="/sair">Trocar de pessoa</a>
   </div>

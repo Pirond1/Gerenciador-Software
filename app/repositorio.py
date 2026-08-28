@@ -220,6 +220,13 @@ class Repositorio:
         self.salvar_board(chave, board)
         return tarefa
 
+    def salvar_projeto(self, projeto) -> None:
+        self._gravar(self.dados / "projeto.json", projeto)
+
+    def proximo_id_entrega(self) -> str:
+        numeros = [int(e.id[1:]) for e in self.projeto().entregas]
+        return f"E{max(numeros) + 1 if numeros else 1}"
+
     # -----------------------------------------------------------------
     # Integridade referencial entre arquivos
     # -----------------------------------------------------------------

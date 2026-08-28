@@ -1,10 +1,10 @@
 {
-  "nome": "Fábrica de Software - [nome do produto]",
+  "nome": "Fábrica de Software - TPost",
   "disciplina": "Avaliação e Qualidade de Software",
   "professor": "Alisson Kuhn",
   "semestre": "2026/2",
   "links": {
-    "repositorio": "https://github.com/...",
+    "repositorio": "https://github.com/Projeto-Qualidade-Software-2026",
     "drive": null
   },
   "colunas": [

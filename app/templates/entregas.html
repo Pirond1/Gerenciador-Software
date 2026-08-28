@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block titulo %}Entregas — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">cronograma</p>
+    <h1>Entregas</h1>
+  </div>
+  <div class="cabecalho__direita">
+    {% if gerivel %}<a class="botao" href="/entrega/nova">Nova entrega</a>{% endif %}
+  </div>
+</header>
+
+{% if linhas %}
+<div class="entregas">
+  {% for l in linhas %}
+  {% set e = l.entrega %}
+  <article class="cartao-entrega cartao-entrega--{{ l.situacao.chave }}">
+    <div class="cartao-entrega__topo">
+      <span class="selo">{{ e.id }}</span>
+      <span class="marca marca--{{ l.situacao.chave }}">{{ l.situacao.rotulo }}</span>
+    </div>
+
+    <h2 class="cartao-entrega__nome">{{ e.nome }}</h2>
+
+    {% if e.prazo %}
+    <p class="cartao-entrega__data">{{ e.prazo.strftime('%d de %B de %Y') }}</p>
+    {% else %}
+    <p class="cartao-entrega__data cartao-entrega__data--vaga">data ainda nao anunciada</p>
+    {% endif %}
+
+    {% if e.descricao %}
+    <p class="cartao-entrega__descricao">{{ e.descricao }}</p>
+    {% endif %}
+
+    <div class="cartao-entrega__progresso">
+      <div class="progresso__numeros">
+        <span class="progresso__valor">{{ l.percentual }}<span class="progresso__unidade">%</span></span>
+        <span class="progresso__detalhe">
+          {% if l.total %}{{ l.prontas }} de {{ l.total }} tarefa{{ '' if l.total == 1 else 's' }}
+          {% else %}nenhuma tarefa vinculada{% endif %}
+        </span>
+      </div>
+      <div class="barra-progresso">
+        <span style="width: {{ l.percentual }}%"></span>
+      </div>
+    </div>
+
+    {% if gerivel %}
+    <div class="cartao-entrega__acoes">
+      <form method="post" action="/entrega/{{ e.id }}/concluir">
+        <button class="botao {% if not e.concluida %}botao--marcar{% else %}botao--fantasma{% endif %}" type="submit">
+          {% if e.concluida %}Reabrir{% else %}Marcar como entregue{% endif %}
+        </button>
+      </form>
+      <a class="botao botao--fantasma" href="/entrega/{{ e.id }}/editar">Editar</a>
+      <form method="post" action="/entrega/{{ e.id }}/excluir"
+            onsubmit="return confirm('Excluir {{ e.id }}?')">
+        <button class="botao botao--perigo" type="submit">Excluir</button>
+      </form>
+    </div>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="vazio vazio--esquerda">Nenhuma entrega cadastrada ainda.</p>
+{% endif %}
+
+{% if soltas %}
+<p class="rodape-nota">{{ soltas }} tarefa(s) sem entrega vinculada.</p>
+{% endif %}
+{% endblock %}

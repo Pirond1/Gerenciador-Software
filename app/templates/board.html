@@ -58,10 +58,9 @@
          data-wip="{{ coluna.dados.wip_limite or 0 }}">
       {% for cartao in coluna.cartoes %}
       {% set t = cartao.tarefa %}
-      {% set etiqueta = 'a' if editavel else 'article' %}
-      <{{ etiqueta }} class="cartao {% if cartao.chave == eu.id %}cartao--meu{% endif %}"
+      <a class="cartao {% if cartao.chave == eu.id %}cartao--meu{% endif %}"
          data-tarefa="{{ t.id }}"
-         {% if editavel %}href="/tarefa/{{ t.id }}/editar"{% endif %}
+         href="/tarefa/{{ t.id }}"
          style="--cor-dono: {{ cartao.cor }}">
         <span class="cartao__topo">
           <span class="cod">{{ t.id }}</span>
@@ -74,7 +73,7 @@
           <span class="dono">{{ cartao.responsavel }}</span>
           {% if t.entrega %}<span class="cod cod--fraco">{{ t.entrega }}</span>{% endif %}
         </span>
-      </{{ etiqueta }}>
+      </a>
       {% else %}
       <p class="vazio">Nada aqui.</p>
       {% endfor %}
