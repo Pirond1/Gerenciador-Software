@@ -1,5 +1,101 @@
 {
   "responsavel": "bruno",
   "tarefas": [
+    {
+      "id": "T-026",
+      "titulo": "ERS 3.7 — Prototipo das telas web",
+      "descricao": "- [ ] Login e cadastro\n- [ ] Feed\n- [ ] Perfil\n- [ ] Composicao de post\n- [ ] Amizades\n\nPartir do mockup do Figma removendo o que foi cortado do escopo: retweet, notificacoes, mensagens, explorar e verificado.",
+      "status": "a_fazer",
+      "prioridade": "alta",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-027",
+      "titulo": "Estrutura do projeto React",
+      "descricao": "Projeto base, rotas, cliente HTTP e padrao de componentes.\n\n## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n## Trabalhar sem o back pronto\n\nTodo HTTP isolado num modulo `api/`. Enquanto a API nao existe, ele devolve\nexatamente os JSONs acima com atraso artificial de ~600ms. Quando o back\nsubir, troca-se so esse modulo — nenhum componente monta URL nem conhece o\nformato do envelope.\n\nSimule tambem os erros: sem eles, os caminhos de falha so aparecem em\nproducao.\n\n- [ ] Modulo `api/` com os tipos do contrato\n- [ ] Dados falsos: feed com 2 paginas, perfil, amizades\n- [ ] Token guardado e enviado no `Authorization`\n- [ ] 401 global volta para o login",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-028",
+      "titulo": "Tela de login e cadastro",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### POST /auth/login — publica\n\n**Envia** (`identificador` aceita o @ ou o e-mail)\n```json\n{ \"identificador\": \"anapaula\", \"senha\": \"segredo123\" }\n```\n\n**200**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": \"https://exemplo.com/a.jpg\" } } }\n```\n\n**401 `credenciais_invalidas`**\n```json\n{ \"erro\": { \"codigo\": \"credenciais_invalidas\",\n            \"mensagem\": \"Usuario ou senha incorretos.\" } }\n```\nMensagem generica de proposito: dizer qual dos dois errou entrega ao atacante\nquais contas existem.\n\n### POST /auth/cadastro — publica\n\n**Envia**\n```json\n{ \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"email\": \"ana@exemplo.com\", \"senha\": \"segredo123\" }\n```\n\n**201**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": null } } }\n```\n\n**422 `dados_invalidos`** — o unico erro com tratamento proprio na tela:\n```json\n{ \"erro\": { \"codigo\": \"dados_invalidos\",\n            \"mensagem\": \"Verifique os campos destacados.\",\n            \"campos\": { \"usuario\": \"ja esta em uso\",\n                        \"senha\": \"minimo de 8 caracteres\" } } }\n```\nAs chaves de `campos` sao os nomes enviados, para o front destacar direto.\n\n## Na tela\n\n- [ ] 401 vira mensagem generica unica, sem dizer qual campo errou\n- [ ] 422 destaca cada campo usando as chaves de `erro.campos`\n- [ ] Botao bloqueado durante o envio\n- [ ] Token guardado; redireciona para o feed",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-029",
+      "titulo": "Feed web",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### GET /feed — protegida\n\nPostagens dos amigos aceitos e as proprias, mais recentes primeiro.\n\n**Parametros**\n\n| Nome | Padrao | Observacao |\n|---|---|---|\n| `limite` | 20 | maximo 50 |\n| `cursor` | ausente | opaco, veio de `meta.proximo_cursor` |\n\n**200**\n```json\n{ \"dados\": [\n    { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n        \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n      \"conteudo\": \"texto do post\",\n      \"criado_em\": \"2026-09-04T14:32:10Z\",\n      \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n  ],\n  \"meta\": { \"proximo_cursor\": \"MjAyNi0wOS0wNFQxNDozMjoxMFp8ODg\" } }\n```\n\n`proximo_cursor` nulo significa fim da lista. Lista vazia na primeira pagina\nsignifica sem amigos ou sem postagens — sao estados de tela diferentes.\n\nCursor em vez de offset porque o feed cresce por cima: com `offset=20`, tres\npostagens novas durante a rolagem fazem o usuario ver item repetido.\n\n## Na tela\n\n- [ ] \"Carregar mais\" usando `meta.proximo_cursor`; some quando vier nulo\n- [ ] `criado_em` formatado como \"2h\" no cliente\n- [ ] `curtidas` formatado como \"3,2 mil\" no cliente\n- [ ] Lista vazia: distinguir \"sem amigos\" de \"amigos sem postagens\"\n- [ ] Estado de carregamento",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-030",
+      "titulo": "Composicao de post com retorno da moderacao",
+      "descricao": "A tela mais delicada do produto.\n\n## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### POST /postagens — protegida\n\nPassa pela moderacao ANTES de gravar. Tres respostas, e a tela trata as tres.\n\n**Envia**\n```json\n{ \"conteudo\": \"texto do post\" }\n```\n\n**201 — aprovado**, devolve a `Postagem` criada:\n```json\n{ \"dados\": { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n      \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n    \"conteudo\": \"texto do post\",\n    \"criado_em\": \"2026-09-04T14:32:10Z\",\n    \"curtidas\": 0, \"comentarios\": 0, \"curtido_por_mim\": false } }\n```\n\n**422 `conteudo_reprovado`** — a IA barrou; nada foi gravado:\n```json\n{ \"erro\": { \"codigo\": \"conteudo_reprovado\",\n            \"mensagem\": \"Este conteudo viola as regras da comunidade.\",\n            \"motivo\": \"violencia\" } }\n```\n`motivo` assume `violencia`, `odio`, `assedio`, `conteudo_perigoso` ou `outro`.\n\n**503 `moderacao_indisponivel`** — nao foi possivel analisar:\n```json\n{ \"erro\": { \"codigo\": \"moderacao_indisponivel\",\n            \"mensagem\": \"Nao foi possivel analisar seu post agora. Tente de novo.\" } }\n```\n\n**422 `dados_invalidos`** — conteudo vazio ou acima de 280 caracteres.\n\n## Na tela\n\n- [ ] **201** — inserir a postagem no topo do feed e limpar a caixa\n- [ ] **422 `conteudo_reprovado`** — MANTER o texto, mostrar `motivo` sem\n      acusar o usuario\n- [ ] **503 `moderacao_indisponivel`** — MANTER o texto e oferecer \"tentar de novo\"\n- [ ] **422 `dados_invalidos`** — destacar o limite de caracteres\n\nDurante a espera, deixar claro que esta analisando: a chamada a IA leva\nsegundos e o usuario nao pode achar que travou.\n\n- [ ] Contador de caracteres (280)\n- [ ] Bloquear envio duplo",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-031",
+      "titulo": "Perfil do usuario",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### GET /eu — protegida\n\nSem parametros.\n\n**200** (inclui `email`, que o perfil publico nao traz)\n```json\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"email\": \"ana@exemplo.com\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\n             \"criado_em\": \"2026-08-01T10:00:00Z\" } }\n```\n\n### PATCH /eu — protegida\n\n**Envia** apenas os campos que mudam:\n```json\n{ \"nome\": \"Ana P. Silva\", \"avatar_url\": \"https://exemplo.com/b.jpg\" }\n```\n\n**200** com o mesmo objeto de `GET /eu` ja atualizado.\n\n### GET /usuarios/{usuario} — protegida\n\n`{usuario}` e o @, nao o id.\n\n**200**\n```json\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\n             \"total_postagens\": 42,\n             \"amizade\": \"aceita\",\n             \"amizade_id\": 77 } }\n```\n\n`amizade` assume `nenhuma`, `pendente_enviada`, `pendente_recebida`, `aceita`\nou `eu_mesmo`. E o campo que decide o botao da tela sem precisar de outra\nchamada. `amizade_id` vem nulo quando `amizade` e `nenhuma` ou `eu_mesmo`.\n\n**404 `usuario_nao_encontrado`**\n\n### GET /usuarios/{usuario}/postagens — protegida\n\nParametros: `limite` (padrao 20, maximo 50) e `cursor`.\n\n**200** — mesma forma paginada do feed, com objetos `Postagem`.\n\n## Na tela\n\n- [ ] Botao decidido por `amizade`, sem chamada extra:\n      `nenhuma` → Adicionar · `pendente_enviada` → Cancelar ·\n      `pendente_recebida` → Aceitar · `aceita` → Desfazer ·\n      `eu_mesmo` → Editar perfil\n- [ ] Postagens do usuario paginadas por cursor\n- [ ] 404 vira tela de usuario inexistente",
+      "status": "backlog",
+      "prioridade": "media",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-032",
+      "titulo": "Curtidas e comentarios na interface",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Comentario`:\n```json\n{ \"id\": 401,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do comentario\",\n  \"criado_em\": \"2026-09-04T15:02:00Z\" }\n```\n\n### PUT /postagens/{id}/curtida — protegida\n\nSem corpo.\n\n**200**\n```json\n{ \"dados\": { \"curtidas\": 3202, \"curtido_por_mim\": true } }\n```\n\n### DELETE /postagens/{id}/curtida — protegida\n\n**200**, mesmo formato, com `curtido_por_mim: false`.\n\nPUT e DELETE em vez de um POST que alterna: sao idempotentes, entao clique\nduplo ou reenvio nao produzem contagem errada.\n\n### GET /postagens/{id}/comentarios — protegida\n\nParametros `limite` (padrao 20) e `cursor`. Ordem crescente por data — é\nconversa, le-se de cima para baixo, ao contrario do feed.\n\n**200**\n```json\n{ \"dados\": [\n    { \"id\": 401, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n        \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n      \"conteudo\": \"texto do comentario\",\n      \"criado_em\": \"2026-09-04T15:02:00Z\" }\n  ],\n  \"meta\": { \"proximo_cursor\": null } }\n```\n\n### POST /postagens/{id}/comentarios — protegida\n\n**Envia**\n```json\n{ \"conteudo\": \"texto do comentario\" }\n```\n\n**201** com o `Comentario` criado.\n\n## Na tela\n\n- [ ] Curtida otimista: atualiza na hora e reverte se a chamada falhar\n- [ ] Usar `curtidas` e `curtido_por_mim` da resposta como verdade final\n- [ ] Comentarios paginados, mais antigos primeiro\n- [ ] Comentario novo anexado ao fim e contagem incrementada",
+      "status": "backlog",
+      "prioridade": "media",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-033",
+      "titulo": "Tela de amizades",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`UsuarioResumo` — embutido em postagens, comentarios e listas:\n```json\n{ \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"avatar_url\": \"https://exemplo.com/a.jpg\" }\n```\n\n### GET /amizades — protegida\n\n**200** — lista de `UsuarioResumo` com amizade aceita, mais o `amizade_id`:\n```json\n{ \"dados\": [ { \"amizade_id\": 77, \"id\": 12, \"nome\": \"Ana Paula\",\n               \"usuario\": \"anapaula\",\n               \"avatar_url\": \"https://exemplo.com/a.jpg\" } ] }\n```\n\n### GET /amizades/pendentes — protegida\n\n**200** — mesma forma, apenas solicitacoes RECEBIDAS e ainda nao aceitas.\n\n### POST /amizades — protegida\n\n**Envia**\n```json\n{ \"usuario_id\": 12 }\n```\n\n**201**\n```json\n{ \"dados\": { \"amizade_id\": 77, \"situacao\": \"pendente_enviada\" } }\n```\n\n**422 `amizade_invalida`** — solicitacao duplicada ou para si mesmo.\n\n### POST /amizades/{amizade_id}/aceitar — protegida\n\nSem corpo. **200** `{ \"dados\": { \"amizade_id\": 77, \"situacao\": \"aceita\" } }`.\n**403 `sem_permissao`** quando a solicitacao nao foi enviada a voce.\n\n### DELETE /amizades/{amizade_id} — protegida\n\nDesfaz amizade ou recusa solicitacao. **204**.\n\n## Na tela\n\n- [ ] Duas listas: aceitos e pendentes recebidos\n- [ ] Aceitar e recusar usam `amizade_id`, nunca o `id` do usuario",
+      "status": "backlog",
+      "prioridade": "baixa",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    }
   ]
 }

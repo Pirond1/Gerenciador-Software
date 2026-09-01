@@ -1,4 +1,113 @@
 {
   "responsavel": "fabrin",
-  "tarefas": []
+  "tarefas": [
+    {
+      "id": "T-041",
+      "titulo": "ERS 2.2.3 — Funcoes de saida (RF_S)",
+      "descricao": "Consultas no padrao `RF_S01 – ...`, com filtros de entrada e itens de saida.\n\n- [ ] Consultar feed\n- [ ] Consultar perfil e postagens\n- [ ] Relatorio de postagens reprovadas pela moderacao",
+      "status": "a_fazer",
+      "prioridade": "alta",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-042",
+      "titulo": "ERS 2.3 — Caracteristicas do usuario",
+      "descricao": "Tabela com cargo, frequencia de uso, nivel de instrucao e proficiencia. Os perfis sao usuario comum e administrador.",
+      "status": "a_fazer",
+      "prioridade": "media",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-043",
+      "titulo": "ERS 3.1 — Diagrama de casos de uso",
+      "descricao": "Atores e casos de uso, limitados ao escopo definido.",
+      "status": "a_fazer",
+      "prioridade": "alta",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-044",
+      "titulo": "ERS 3.2 — Especificacoes de caso de uso",
+      "descricao": "Formato do modelo: ator principal, referencias cruzadas, pre-condicao, pos-condicao, fluxo principal e fluxo alternativo.\n\n- [ ] Publicar postagem — o fluxo alternativo da reprovacao pela IA e o mais importante do documento\n- [ ] Curtir\n- [ ] Comentar\n- [ ] Aceitar amizade",
+      "status": "a_fazer",
+      "prioridade": "alta",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-045",
+      "titulo": "ERS 3.3 — Diagrama de atividades",
+      "descricao": "Para os casos de uso principais. Fica para depois da E1 se nao der tempo.",
+      "status": "backlog",
+      "prioridade": "media",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-046",
+      "titulo": "ERS 3.5 — Diagrama de sequencia",
+      "descricao": "O de publicar postagem deve mostrar a ida e volta ao servico de moderacao.",
+      "status": "backlog",
+      "prioridade": "media",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-047",
+      "titulo": "Plano de testes",
+      "descricao": "Estrategia, niveis, criterios de entrada e saida.",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-048",
+      "titulo": "Casos de teste ligados aos RF",
+      "descricao": "Cada caso referencia o RF que verifica — fecha a rastreabilidade requisito -> tarefa -> teste.\n\nO contrato (T-009) ja da os resultados esperados prontos:\n\n| Cenario | Esperado |\n|---|---|\n| login com senha errada | 401 `credenciais_invalidas` |\n| @ ja em uso no cadastro | 422 `dados_invalidos` |\n| requisicao sem token | 401 `nao_autenticado` |\n| excluir post de outro | 403 `sem_permissao` |\n| perfil inexistente | 404 `usuario_nao_encontrado` |\n| post acima de 280 chars | 422 `dados_invalidos` |\n| post reprovado pela IA | 422 `conteudo_reprovado` |\n| moderacao fora do ar | 503 `moderacao_indisponivel` |",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-049",
+      "titulo": "Testes da moderacao por IA",
+      "descricao": "A parte mais dificil de testar: a resposta nao e deterministica, entao o criterio nao pode ser \"a IA responde exatamente X\".\n\n- [ ] Conteudo claramente ofensivo\n- [ ] Conteudo claramente inofensivo\n- [ ] Casos de fronteira (ironia, citacao, girias)\n- [ ] API fora do ar — comportamento conforme a T-012\n- [ ] API lenta, acima do timeout\n- [ ] Verificar que post reprovado NAO foi gravado no banco",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    }
+  ]
 }

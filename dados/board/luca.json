@@ -1,4 +1,89 @@
 {
   "responsavel": "luca",
-  "tarefas": []
+  "tarefas": [
+    {
+      "id": "T-034",
+      "titulo": "Prototipo das telas mobile",
+      "descricao": "Equivalente mobile do prototipo web, com abas inferiores no lugar da barra lateral.\n\nMesmo escopo da T-026.",
+      "status": "a_fazer",
+      "prioridade": "alta",
+      "entrega": "E1",
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-035",
+      "titulo": "Estrutura do projeto React Native",
+      "descricao": "Projeto base, navegacao e cliente HTTP.\n\n## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n## Trabalhar sem o back pronto\n\nTodo HTTP isolado num modulo `api/`. Enquanto a API nao existe, ele devolve\nexatamente os JSONs acima com atraso artificial de ~600ms. Quando o back\nsubir, troca-se so esse modulo — nenhum componente monta URL nem conhece o\nformato do envelope.\n\nSimule tambem os erros: sem eles, os caminhos de falha so aparecem em\nproducao.\n\nCombinar com o Bruno (T-027) os mesmos tipos e dados falsos: o contrato e o\nmesmo, so a interface muda.\n\n- [ ] Token em armazenamento seguro do dispositivo\n- [ ] 401 global volta para o login",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-036",
+      "titulo": "Login e cadastro mobile",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### POST /auth/login — publica\n\n**Envia** (`identificador` aceita o @ ou o e-mail)\n```json\n{ \"identificador\": \"anapaula\", \"senha\": \"segredo123\" }\n```\n\n**200**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": \"https://exemplo.com/a.jpg\" } } }\n```\n\n**401 `credenciais_invalidas`**\n```json\n{ \"erro\": { \"codigo\": \"credenciais_invalidas\",\n            \"mensagem\": \"Usuario ou senha incorretos.\" } }\n```\nMensagem generica de proposito: dizer qual dos dois errou entrega ao atacante\nquais contas existem.\n\n### POST /auth/cadastro — publica\n\n**Envia**\n```json\n{ \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"email\": \"ana@exemplo.com\", \"senha\": \"segredo123\" }\n```\n\n**201**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": null } } }\n```\n\n**422 `dados_invalidos`** — o unico erro com tratamento proprio na tela:\n```json\n{ \"erro\": { \"codigo\": \"dados_invalidos\",\n            \"mensagem\": \"Verifique os campos destacados.\",\n            \"campos\": { \"usuario\": \"ja esta em uso\",\n                        \"senha\": \"minimo de 8 caracteres\" } } }\n```\nAs chaves de `campos` sao os nomes enviados, para o front destacar direto.\n\n## Na tela\n\n- [ ] Sessao persiste entre aberturas do app\n- [ ] 401 vira mensagem generica unica\n- [ ] 422 destaca campos por `erro.campos`",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-037",
+      "titulo": "Feed mobile",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### GET /feed — protegida\n\nPostagens dos amigos aceitos e as proprias, mais recentes primeiro.\n\n**Parametros**\n\n| Nome | Padrao | Observacao |\n|---|---|---|\n| `limite` | 20 | maximo 50 |\n| `cursor` | ausente | opaco, veio de `meta.proximo_cursor` |\n\n**200**\n```json\n{ \"dados\": [\n    { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n        \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n      \"conteudo\": \"texto do post\",\n      \"criado_em\": \"2026-09-04T14:32:10Z\",\n      \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n  ],\n  \"meta\": { \"proximo_cursor\": \"MjAyNi0wOS0wNFQxNDozMjoxMFp8ODg\" } }\n```\n\n`proximo_cursor` nulo significa fim da lista. Lista vazia na primeira pagina\nsignifica sem amigos ou sem postagens — sao estados de tela diferentes.\n\nCursor em vez de offset porque o feed cresce por cima: com `offset=20`, tres\npostagens novas durante a rolagem fazem o usuario ver item repetido.\n\n## Na tela\n\n- [ ] Rolagem infinita com `meta.proximo_cursor`\n- [ ] Puxar para atualizar refaz a primeira pagina, sem cursor\n- [ ] Tempo relativo e contagens formatados no cliente\n- [ ] Estado offline",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-038",
+      "titulo": "Composicao de post mobile",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### POST /postagens — protegida\n\nPassa pela moderacao ANTES de gravar. Tres respostas, e a tela trata as tres.\n\n**Envia**\n```json\n{ \"conteudo\": \"texto do post\" }\n```\n\n**201 — aprovado**, devolve a `Postagem` criada:\n```json\n{ \"dados\": { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n      \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n    \"conteudo\": \"texto do post\",\n    \"criado_em\": \"2026-09-04T14:32:10Z\",\n    \"curtidas\": 0, \"comentarios\": 0, \"curtido_por_mim\": false } }\n```\n\n**422 `conteudo_reprovado`** — a IA barrou; nada foi gravado:\n```json\n{ \"erro\": { \"codigo\": \"conteudo_reprovado\",\n            \"mensagem\": \"Este conteudo viola as regras da comunidade.\",\n            \"motivo\": \"violencia\" } }\n```\n`motivo` assume `violencia`, `odio`, `assedio`, `conteudo_perigoso` ou `outro`.\n\n**503 `moderacao_indisponivel`** — nao foi possivel analisar:\n```json\n{ \"erro\": { \"codigo\": \"moderacao_indisponivel\",\n            \"mensagem\": \"Nao foi possivel analisar seu post agora. Tente de novo.\" } }\n```\n\n**422 `dados_invalidos`** — conteudo vazio ou acima de 280 caracteres.\n\n## Na tela\n\nMesmo tratamento das tres respostas da T-030. O texto NUNCA se perde quando a\nmoderacao reprova ou falha — em celular, redigitar e pior ainda.\n\n- [ ] 201 insere no topo · 422 mantem texto e mostra motivo · 503 oferece\n      tentar de novo\n- [ ] Indicador de analise em andamento\n- [ ] Contador de caracteres (280)",
+      "status": "backlog",
+      "prioridade": "alta",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-039",
+      "titulo": "Perfil mobile",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### GET /usuarios/{usuario} — protegida\n\n`{usuario}` e o @, nao o id.\n\n**200**\n```json\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\n             \"total_postagens\": 42,\n             \"amizade\": \"aceita\",\n             \"amizade_id\": 77 } }\n```\n\n`amizade` assume `nenhuma`, `pendente_enviada`, `pendente_recebida`, `aceita`\nou `eu_mesmo`. E o campo que decide o botao da tela sem precisar de outra\nchamada. `amizade_id` vem nulo quando `amizade` e `nenhuma` ou `eu_mesmo`.\n\n**404 `usuario_nao_encontrado`**\n\n### GET /usuarios/{usuario}/postagens — protegida\n\nParametros: `limite` (padrao 20, maximo 50) e `cursor`.\n\n**200** — mesma forma paginada do feed, com objetos `Postagem`.\n\n## Na tela\n\n- [ ] Botao decidido por `amizade`, igual a T-031\n- [ ] Postagens paginadas por cursor",
+      "status": "backlog",
+      "prioridade": "media",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    },
+    {
+      "id": "T-040",
+      "titulo": "Curtidas e comentarios mobile",
+      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Comentario`:\n```json\n{ \"id\": 401,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do comentario\",\n  \"criado_em\": \"2026-09-04T15:02:00Z\" }\n```\n\n### PUT /postagens/{id}/curtida — protegida\n\nSem corpo.\n\n**200**\n```json\n{ \"dados\": { \"curtidas\": 3202, \"curtido_por_mim\": true } }\n```\n\n### DELETE /postagens/{id}/curtida — protegida\n\n**200**, mesmo formato, com `curtido_por_mim: false`.\n\nPUT e DELETE em vez de um POST que alterna: sao idempotentes, entao clique\nduplo ou reenvio nao produzem contagem errada.\n\n### GET /postagens/{id}/comentarios — protegida\n\nParametros `limite` (padrao 20) e `cursor`. Ordem crescente por data — é\nconversa, le-se de cima para baixo, ao contrario do feed.\n\n**200**\n```json\n{ \"dados\": [\n    { \"id\": 401, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n        \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n      \"conteudo\": \"texto do comentario\",\n      \"criado_em\": \"2026-09-04T15:02:00Z\" }\n  ],\n  \"meta\": { \"proximo_cursor\": null } }\n```\n\n### POST /postagens/{id}/comentarios — protegida\n\n**Envia**\n```json\n{ \"conteudo\": \"texto do comentario\" }\n```\n\n**201** com o `Comentario` criado.\n\n## Na tela\n\n- [ ] Curtida otimista com reversao em caso de falha\n- [ ] Comentarios paginados, mais antigos primeiro",
+      "status": "backlog",
+      "prioridade": "media",
+      "entrega": null,
+      "requisitos": [],
+      "criado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_por": "gustavo"
+    }
+  ]
 }

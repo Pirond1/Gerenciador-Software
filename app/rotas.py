@@ -11,7 +11,6 @@ registrado como tal -- nao trate como controle de acesso.
 
 from __future__ import annotations
 
-import html
 import re
 from datetime import date
 from pathlib import Path
@@ -42,17 +41,25 @@ repo = Repositorio(RAIZ)
 templates.env.globals["git_estado"] = lambda: gitinfo.estado(RAIZ)
 
 
-def render_markdown(texto: str) -> str:
-    """Markdown das descricoes, com o HTML bruto neutralizado antes.
+def _escapar_fora_de_codigo(texto: str) -> str:
+    """Bloqueia HTML cru sem estragar o conteudo dos blocos de codigo.
 
-    Escapamos primeiro: o texto vem de outra pessoa via repositorio, e
-    permitir HTML cru ali nao traz beneficio nenhum para o caso de uso.
+    html.escape() no texto inteiro era o bug: transformava " em &quot;, e o
+    markdown escapava o & de novo, imprimindo &quot; literal na tela.
     """
+    partes = texto.split("```")
+    for i in range(0, len(partes), 2):  # indices pares ficam fora dos blocos
+        partes[i] = partes[i].replace("<", "&lt;")
+    return "```".join(partes)
+
+
+def render_markdown(texto: str) -> str:
     if not texto.strip():
         return ""
-    bruto = md.markdown(html.escape(texto), extensions=["nl2br", "tables"])
-    # Checklists (- [ ] item) nao existem no markdown padrao; convertemos
-    # o resultado para caixas desmarcaveis apenas visuais.
+    bruto = md.markdown(
+        _escapar_fora_de_codigo(texto),
+        extensions=["fenced_code", "tables", "sane_lists"],
+    )
     bruto = re.sub(r"<li>\s*\[ \]\s*", '<li class="tarefa-item">', bruto)
     bruto = re.sub(
         r"<li>\s*\[[xX]\]\s*", '<li class="tarefa-item tarefa-item--feito">', bruto
