@@ -1,0 +1,25 @@
+{
+  "id": "RF_F05",
+  "tipo": "fundamental",
+  "titulo": "Comentar postagem",
+  "descricao": "O usuário escreve um comentário associado a uma publicação visível para ele.",
+  "entradas": [
+    "publicação",
+    "texto do comentário"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "comentário criado",
+    "total de comentários atualizado"
+  ],
+  "regras": [
+    "o comentário tem entre 1 e 280 caracteres",
+    "só é possível comentar publicação visível ao usuário"
+  ],
+  "criterios_aceite": [
+    "o total de comentários da publicação é incrementado"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "UC07",
+  "nome": "Responder solicitação de amizade",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_F07",
+    "RF_S04"
+  ],
+  "pre_condicao": "Existe solicitação de amizade pendente destinada ao usuário",
+  "pos_condicao": "A amizade passa a vigorar ou a solicitação é removida",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "consulta suas solicitações pendentes"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta as solicitações recebidas ainda não respondidas"
+    },
+    {
+      "ator": "O usuário",
+      "acao": "aceita a solicitação"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "efetiva a amizade e torna as publicações mutuamente visíveis"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Recusa da solicitação",
+      "passos": [
+        {
+          "ator": "O usuário",
+          "acao": "recusa a solicitação recebida"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "remove a solicitação, permitindo novo pedido no futuro"
+        }
+      ]
+    },
+    {
+      "nome": "Resposta por usuário não destinatário",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "identifica que a solicitação não se destina a quem responde"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "recusa a operação"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "RF_F06",
+  "tipo": "fundamental",
+  "titulo": "Solicitar amizade",
+  "descricao": "O usuário envia a outro usuário um pedido de amizade, que fica pendente até ser respondido.",
+  "entradas": [
+    "usuário de destino"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "solicitação registrada com situação pendente"
+  ],
+  "regras": [
+    "não é permitido solicitar a si mesmo nem repetir solicitação existente",
+    "a solicitação não concede visibilidade até ser aceita"
+  ],
+  "criterios_aceite": [
+    "a publicação do destinatário não aparece no feed enquanto a solicitação estiver pendente"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

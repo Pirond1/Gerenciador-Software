@@ -1,0 +1,18 @@
+{
+  "id": "RNF05",
+  "tipo": "nao_funcional",
+  "titulo": "Disponibilidade em duas plataformas",
+  "descricao": "As funções de autenticação, feed, publicação, curtida, comentário e perfil estão disponíveis tanto na aplicação web quanto no aplicativo móvel, consumindo a mesma API.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "as duas interfaces usam o mesmo contrato de API, sem rotas exclusivas"
+  ],
+  "criterios_aceite": [
+    "uma publicação criada no aplicativo aparece na web sem ajuste adicional"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

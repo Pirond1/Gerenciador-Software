@@ -1,0 +1,26 @@
+{
+  "id": "RF_S03",
+  "tipo": "saida",
+  "titulo": "Consultar comentários de uma publicação",
+  "descricao": "O usuário visualiza os comentários de uma publicação, do mais antigo para o mais recente.",
+  "entradas": [
+    "publicação",
+    "quantidade de itens",
+    "marcador de posição"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "autor do comentário",
+    "texto",
+    "data e hora"
+  ],
+  "regras": [
+    "a ordenação é crescente por data, por se tratar de conversa"
+  ],
+  "criterios_aceite": [
+    "a ordem de leitura acompanha a sequência da conversa"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

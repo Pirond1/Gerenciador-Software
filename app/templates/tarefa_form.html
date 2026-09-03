@@ -70,6 +70,26 @@
     Salvando como <strong>{{ eu.nome }}</strong> — fica registrado como autor da alteracao.
   </p>
 
+  <fieldset class="campo campo--largo vinculos">
+    <legend class="campo__rotulo">Requisitos atendidos</legend>
+    {% if requisitos_disponiveis %}
+    <div class="vinculos__grade">
+      {% for r in requisitos_disponiveis %}
+      <label class="vinculo">
+        <input type="checkbox" name="requisitos" value="{{ r.id }}"
+               {% if tarefa and r.id in tarefa.requisitos %}checked{% endif %}>
+        <span class="cod">{{ r.id }}</span>
+        <span class="vinculo__titulo">{{ r.titulo }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <span class="campo__ajuda">E o que liga requisito -> tarefa -> teste.</span>
+    {% else %}
+    <p class="campo__ajuda">Nenhum requisito cadastrado ainda.
+      <a href="/requisito/novo">Criar o primeiro</a>.</p>
+    {% endif %}
+  </fieldset>
+
   <div class="formulario__acoes">
     <button class="botao" type="submit">
       {% if tarefa %}Salvar alteracoes{% else %}Criar tarefa{% endif %}

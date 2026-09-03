@@ -1,0 +1,97 @@
+{
+  "id": "UC02",
+  "nome": "Publicar postagem",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_F02",
+    "RF_F03",
+    "RNF01",
+    "RNF02",
+    "RNF07"
+  ],
+  "pre_condicao": "O usuário está autenticado",
+  "pos_condicao": "A publicação aprovada fica visível no feed do autor e de seus amigos",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "redige o texto da publicação e confirma o envio"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "valida o tamanho do texto"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "envia o texto ao serviço de moderação e indica ao usuário que a análise está em andamento"
+    },
+    {
+      "ator": "O serviço de moderação",
+      "acao": "classifica o conteúdo e devolve a aprovação"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "grava a publicação e registra a decisão da moderação"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta a publicação no topo do feed"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Conteúdo recusado pela moderação",
+      "passos": [
+        {
+          "ator": "O serviço de moderação",
+          "acao": "classifica o conteúdo como impróprio e devolve o motivo"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "não grava a publicação e registra a decisão para auditoria"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "informa o motivo da recusa e mantém o texto redigido na tela"
+        },
+        {
+          "ator": "O usuário",
+          "acao": "pode corrigir o texto e enviar novamente"
+        }
+      ]
+    },
+    {
+      "nome": "Moderação indisponível",
+      "passos": [
+        {
+          "ator": "O serviço de moderação",
+          "acao": "não responde dentro do tempo limite de 10 segundos"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "aborta a tentativa e não grava a publicação"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "informa a indisponibilidade e mantém o texto redigido na tela"
+        },
+        {
+          "ator": "O usuário",
+          "acao": "pode tentar novamente mais tarde"
+        }
+      ]
+    },
+    {
+      "nome": "Texto fora do tamanho permitido",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "identifica texto vazio ou acima de 280 caracteres"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "recusa o envio antes de acionar a moderação e destaca o limite"
+        }
+      ]
+    }
+  ]
+}

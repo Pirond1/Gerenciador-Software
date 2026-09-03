@@ -1,0 +1,19 @@
+{
+  "id": "RNF01",
+  "tipo": "nao_funcional",
+  "titulo": "Comportamento na indisponibilidade da moderação",
+  "descricao": "Quando o serviço de moderação não responde, o sistema bloqueia a publicação e informa a indisponibilidade ao usuário, em vez de publicar conteúdo não analisado.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "nenhuma publicação é gravada sem veredito de moderação",
+    "o autor mantém o texto e pode tentar novamente"
+  ],
+  "criterios_aceite": [
+    "com o serviço de moderação fora do ar, nenhuma publicação é criada"
+  ],
+  "prioridade": "alta",
+  "origem": "Política de moderação (T-012)",
+  "status": "aprovado"
+}

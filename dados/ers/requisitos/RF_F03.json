@@ -1,0 +1,27 @@
+{
+  "id": "RF_F03",
+  "tipo": "fundamental",
+  "titulo": "Moderar conteúdo automaticamente",
+  "descricao": "Antes de gravar uma publicação, o sistema envia o texto ao serviço externo de moderação, que o classifica como aprovado ou recusado, indicando o motivo da recusa.",
+  "entradas": [
+    "texto submetido à publicação"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "veredito de aprovação",
+    "motivo da recusa quando aplicável"
+  ],
+  "regras": [
+    "os motivos possíveis são violência, ódio, assédio, conteúdo perigoso e outro",
+    "toda decisão é registrada para auditoria, inclusive as recusas",
+    "a indisponibilidade do serviço impede a publicação, conforme RNF01"
+  ],
+  "criterios_aceite": [
+    "conteúdo claramente ofensivo é recusado com motivo",
+    "conteúdo inofensivo é aprovado",
+    "a decisão fica registrada mesmo quando a publicação é recusada"
+  ],
+  "prioridade": "alta",
+  "origem": "Política de moderação (T-012)",
+  "status": "aprovado"
+}

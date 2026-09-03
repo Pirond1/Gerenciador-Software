@@ -5,48 +5,75 @@
       "id": "T-041",
       "titulo": "ERS 2.2.3 — Funcoes de saida (RF_S)",
       "descricao": "Consultas no padrao `RF_S01 – ...`, com filtros de entrada e itens de saida.\n\n- [ ] Consultar feed\n- [ ] Consultar perfil e postagens\n- [ ] Relatorio de postagens reprovadas pela moderacao",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_S01",
+        "RF_S02",
+        "RF_S03",
+        "RF_S04",
+        "RF_S05"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-042",
       "titulo": "ERS 2.3 — Caracteristicas do usuario",
       "descricao": "Tabela com cargo, frequencia de uso, nivel de instrucao e proficiencia. Os perfis sao usuario comum e administrador.",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "media",
       "entrega": "E1",
       "requisitos": [],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-043",
       "titulo": "ERS 3.1 — Diagrama de casos de uso",
       "descricao": "Atores e casos de uso, limitados ao escopo definido.",
-      "status": "a_fazer",
+      "status": "fazendo",
       "prioridade": "alta",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_F01",
+        "RF_F02",
+        "RF_F04",
+        "RF_F05",
+        "RF_F06",
+        "RF_F07",
+        "RF_S01",
+        "RF_S05"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-044",
       "titulo": "ERS 3.2 — Especificacoes de caso de uso",
       "descricao": "Formato do modelo: ator principal, referencias cruzadas, pre-condicao, pos-condicao, fluxo principal e fluxo alternativo.\n\n- [ ] Publicar postagem — o fluxo alternativo da reprovacao pela IA e o mais importante do documento\n- [ ] Curtir\n- [ ] Comentar\n- [ ] Aceitar amizade",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_F01",
+        "RF_F02",
+        "RF_F03",
+        "RF_F04",
+        "RF_F05",
+        "RF_F06",
+        "RF_F07",
+        "RF_S01",
+        "RF_S03",
+        "RF_S04",
+        "RF_S05"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -56,9 +83,12 @@
       "status": "backlog",
       "prioridade": "media",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F02",
+        "RF_F07"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -68,9 +98,12 @@
       "status": "backlog",
       "prioridade": "media",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F02",
+        "RF_F03"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -92,9 +125,27 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_B01",
+        "RF_B02",
+        "RF_B03",
+        "RF_B04",
+        "RF_F01",
+        "RF_F02",
+        "RF_F03",
+        "RF_F04",
+        "RF_F05",
+        "RF_F06",
+        "RF_F07",
+        "RF_F08",
+        "RF_S01",
+        "RF_S02",
+        "RF_S03",
+        "RF_S04",
+        "RF_S05"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -104,9 +155,14 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F03",
+        "RNF01",
+        "RNF02",
+        "RNF07"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     }
   ]

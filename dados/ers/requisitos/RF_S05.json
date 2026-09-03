@@ -1,0 +1,29 @@
+{
+  "id": "RF_S05",
+  "tipo": "saida",
+  "titulo": "Emitir relatório de conteúdo recusado",
+  "descricao": "O administrador consulta as publicações recusadas pela moderação automática em um período, com o motivo de cada recusa.",
+  "entradas": [
+    "período inicial",
+    "período final",
+    "motivo da recusa"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "data e hora",
+    "autor",
+    "motivo da recusa",
+    "total por motivo"
+  ],
+  "regras": [
+    "disponível apenas para o perfil administrador",
+    "o relatório usa o registro de auditoria previsto em RF_F03"
+  ],
+  "criterios_aceite": [
+    "usuário comum não acessa o relatório",
+    "o total por motivo confere com a soma das ocorrências listadas"
+  ],
+  "prioridade": "baixa",
+  "origem": "Política de moderação (T-012)",
+  "status": "proposto"
+}

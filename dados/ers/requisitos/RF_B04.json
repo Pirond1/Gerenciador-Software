@@ -1,0 +1,21 @@
+{
+  "id": "RF_B04",
+  "tipo": "basica",
+  "titulo": "Gerenciar comentário",
+  "descricao": "O autor de um comentário poderá consultá-lo e excluí-lo.",
+  "entradas": [
+    "texto do comentário"
+  ],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "somente o autor pode excluir o próprio comentário",
+    "o comentário tem no máximo 280 caracteres"
+  ],
+  "criterios_aceite": [
+    "tentativa de excluir comentário de outro usuário é recusada"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "proposto"
+}

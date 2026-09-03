@@ -1,0 +1,52 @@
+{
+  "id": "UC04",
+  "nome": "Curtir postagem",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_F04"
+  ],
+  "pre_condicao": "O usuário está autenticado e visualiza uma publicação visível para ele",
+  "pos_condicao": "A curtida é registrada ou removida e o total é atualizado",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "aciona a curtida sobre a publicação"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "registra a curtida do usuário na publicação"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "devolve o total atualizado e a situação da curtida"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Remoção da curtida",
+      "passos": [
+        {
+          "ator": "O usuário",
+          "acao": "aciona novamente sobre uma publicação já curtida"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "remove a curtida e devolve o total atualizado"
+        }
+      ]
+    },
+    {
+      "nome": "Falha de comunicação",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "não conclui o registro da curtida"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "restaura a indicação anterior na interface, para não exibir estado divergente do gravado"
+        }
+      ]
+    }
+  ]
+}

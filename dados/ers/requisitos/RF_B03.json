@@ -1,0 +1,23 @@
+{
+  "id": "RF_B03",
+  "tipo": "basica",
+  "titulo": "Gerenciar amizade",
+  "descricao": "O usuário poderá consultar suas amizades e solicitações pendentes e desfazer uma amizade existente.",
+  "entradas": [
+    "usuário de destino"
+  ],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "não é permitido solicitar amizade a si mesmo",
+    "não é permitida solicitação duplicada entre os mesmos usuários",
+    "desfazer a amizade remove a visibilidade mútua das publicações"
+  ],
+  "criterios_aceite": [
+    "solicitação duplicada é recusada",
+    "após desfazer, as publicações do ex-amigo deixam de aparecer no feed"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

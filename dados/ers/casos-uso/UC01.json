@@ -1,0 +1,48 @@
+{
+  "id": "UC01",
+  "nome": "Autenticar usuário",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_F01",
+    "RNF03"
+  ],
+  "pre_condicao": "O usuário possui conta cadastrada no sistema",
+  "pos_condicao": "O usuário recebe credencial de acesso e é direcionado ao feed",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "informa seu identificador público ou e-mail e a senha"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "verifica as credenciais informadas"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "emite a credencial de acesso e a devolve ao cliente"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta o feed do usuário"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Credenciais inválidas",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "não localiza a combinação informada"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "apresenta mensagem genérica de credenciais incorretas, sem indicar qual campo está errado"
+        },
+        {
+          "ator": "O usuário",
+          "acao": "pode corrigir os dados e tentar novamente"
+        }
+      ]
+    }
+  ]
+}

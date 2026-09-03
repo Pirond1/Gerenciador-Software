@@ -1,0 +1,44 @@
+{
+  "id": "UC06",
+  "nome": "Solicitar amizade",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_F06",
+    "RF_S02"
+  ],
+  "pre_condicao": "O usuário está autenticado e consulta o perfil de outro usuário",
+  "pos_condicao": "A solicitação fica registrada como pendente para o destinatário",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "consulta o perfil do usuário desejado"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta o perfil e a situação atual da amizade"
+    },
+    {
+      "ator": "O usuário",
+      "acao": "solicita a amizade"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "registra a solicitação como pendente e atualiza a situação apresentada"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Solicitação já existente",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "identifica solicitação anterior entre os mesmos usuários"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "recusa a nova solicitação e mantém a situação existente"
+        }
+      ]
+    }
+  ]
+}

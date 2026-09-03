@@ -1,0 +1,28 @@
+{
+  "id": "RF_S02",
+  "tipo": "saida",
+  "titulo": "Consultar perfil de usuário",
+  "descricao": "O usuário consulta o perfil público de outro usuário e suas publicações.",
+  "entradas": [
+    "identificador público do usuário"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "nome",
+    "identificador público",
+    "avatar",
+    "total de publicações",
+    "situação da amizade em relação a quem consulta",
+    "publicações do usuário"
+  ],
+  "regras": [
+    "o e-mail não é exibido em perfil de terceiros",
+    "a situação da amizade assume nenhuma, pendente enviada, pendente recebida, aceita ou próprio usuário"
+  ],
+  "criterios_aceite": [
+    "a situação da amizade permite à interface decidir a ação oferecida sem consulta adicional"
+  ],
+  "prioridade": "media",
+  "origem": "Contrato da API (T-009)",
+  "status": "aprovado"
+}

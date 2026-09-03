@@ -1,0 +1,28 @@
+{
+  "atores": [
+    {
+      "id": "usuario_comum",
+      "nome": "Usuário comum",
+      "descricao": "Publica conteúdo, mantém amizades e interage com as publicações dos amigos",
+      "frequencia_uso": "diária",
+      "nivel_instrucao": "ensino médio",
+      "proficiencia": "básica"
+    },
+    {
+      "id": "administrador",
+      "nome": "Administrador",
+      "descricao": "Acompanha as decisões da moderação automática e o funcionamento do sistema",
+      "frequencia_uso": "semanal",
+      "nivel_instrucao": "ensino superior",
+      "proficiencia": "avançada"
+    },
+    {
+      "id": "servico_moderacao",
+      "nome": "Serviço de moderação",
+      "descricao": "Ator externo: API de inteligência artificial que classifica o conteúdo antes da publicação",
+      "frequencia_uso": "a cada publicação",
+      "nivel_instrucao": "—",
+      "proficiencia": "—"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "RF_F08",
+  "tipo": "fundamental",
+  "titulo": "Excluir postagem",
+  "descricao": "O autor remove uma publicação sua do sistema.",
+  "entradas": [
+    "publicação"
+  ],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "somente o autor pode excluir a publicação",
+    "a exclusão remove também as curtidas e comentários associados"
+  ],
+  "criterios_aceite": [
+    "tentativa de excluir publicação de outro usuário é recusada"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "proposto"
+}

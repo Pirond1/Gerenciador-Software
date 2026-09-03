@@ -1,0 +1,23 @@
+{
+  "id": "RF_B02",
+  "tipo": "basica",
+  "titulo": "Gerenciar perfil",
+  "descricao": "O usuário poderá alterar seus dados de exibição e consultar o perfil de outros usuários.",
+  "entradas": [
+    "nome de exibição"
+  ],
+  "opcionais": [
+    "imagem de avatar"
+  ],
+  "saidas": [],
+  "regras": [
+    "o identificador público não pode ser alterado após o cadastro",
+    "o e-mail é visível apenas para o próprio usuário"
+  ],
+  "criterios_aceite": [
+    "o perfil de outro usuário não exibe o e-mail"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

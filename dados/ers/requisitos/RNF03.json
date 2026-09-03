@@ -1,0 +1,20 @@
+{
+  "id": "RNF03",
+  "tipo": "nao_funcional",
+  "titulo": "Proteção das credenciais",
+  "descricao": "As senhas são armazenadas exclusivamente como hash, e as rotas do sistema exigem credencial válida.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "nenhuma senha é gravada ou registrada em texto puro",
+    "apenas cadastro e autenticação são acessíveis sem credencial",
+    "a comunicação entre clientes e servidor usa HTTPS"
+  ],
+  "criterios_aceite": [
+    "a consulta direta ao banco não revela nenhuma senha legível"
+  ],
+  "prioridade": "alta",
+  "origem": "Boas práticas de segurança",
+  "status": "aprovado"
+}

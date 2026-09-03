@@ -8,9 +8,14 @@
       "status": "a_fazer",
       "prioridade": "alta",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_B01",
+        "RF_F02",
+        "RF_S01",
+        "RF_S02"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -20,9 +25,11 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RNF05"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -32,9 +39,12 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F01",
+        "RNF03"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -44,9 +54,12 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_S01",
+        "RNF06"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -56,9 +69,13 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F02",
+        "RNF01",
+        "RNF07"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -68,9 +85,11 @@
       "status": "backlog",
       "prioridade": "media",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_S02"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -80,9 +99,13 @@
       "status": "backlog",
       "prioridade": "media",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F04",
+        "RF_F05",
+        "RF_S03"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     }
   ]

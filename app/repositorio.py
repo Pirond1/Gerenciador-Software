@@ -20,7 +20,11 @@ from typing import Optional
 
 from pydantic import BaseModel, ValidationError
 
-from app.models import BoardMembro, Equipe, ItemStack, Projeto, Stack, Tarefa
+from app.models import (
+    BoardMembro, CasoDeUso, Equipe, ItemStack, Projeto, Requisito,
+    Stack, Tarefa, TipoRequisito, PREFIXO_REQUISITO,
+    Atores, Documento, Glossario, Ator, Termo
+)
 
 NAO_ATRIBUIDAS = "nao_atribuidas"
 
@@ -34,6 +38,9 @@ class Repositorio:
         self.raiz = Path(raiz)
         self.dados = self.raiz / "dados"
         self.board_dir = self.dados / "board"
+        self.requisitos_dir = self.dados / "ers" / "requisitos"
+        self.casos_dir = self.dados / "ers" / "casos-uso"
+        self.ers_dir = self.dados / "ers"
 
     # -----------------------------------------------------------------
     # Primitivas de disco -- o unico ponto do sistema que toca arquivo
@@ -228,6 +235,79 @@ class Repositorio:
         return f"E{max(numeros) + 1 if numeros else 1}"
 
     # -----------------------------------------------------------------
+    # ERS: requisitos e casos de uso
+    #
+    # Um arquivo por requisito, pela mesma razao do board: cada pessoa
+    # escreve os seus, e arquivos separados nao conflitam no merge.
+    # -----------------------------------------------------------------
+ 
+    def requisitos(self) -> list[Requisito]:
+        """Todos os requisitos, ordenados por tipo e numero."""
+        if not self.requisitos_dir.exists():
+            return []
+        itens = [
+            self._ler(caminho, Requisito)
+            for caminho in sorted(self.requisitos_dir.glob("*.json"))
+        ]
+        ordem = list(PREFIXO_REQUISITO)
+        itens.sort(key=lambda r: (ordem.index(r.tipo), r.numero))
+        return itens
+ 
+    def requisito(self, requisito_id: str) -> Requisito:
+        return self._ler(self.requisitos_dir / f"{requisito_id}.json", Requisito)
+ 
+    def salvar_requisito(self, requisito: Requisito) -> None:
+        self.requisitos_dir.mkdir(parents=True, exist_ok=True)
+        self._gravar(self.requisitos_dir / f"{requisito.id}.json", requisito)
+ 
+    def excluir_requisito(self, requisito_id: str) -> None:
+        caminho = self.requisitos_dir / f"{requisito_id}.json"
+        if not caminho.exists():
+            raise ErroRepositorio(f"requisito {requisito_id} nao encontrado")
+        caminho.unlink()
+ 
+    def proximo_id_requisito(self, tipo: TipoRequisito) -> str:
+        """Numeracao independente por tipo: RF_B01, RF_B02, RF_F01..."""
+        prefixo = PREFIXO_REQUISITO[tipo]
+        numeros = [r.numero for r in self.requisitos() if r.tipo == tipo]
+        return f"{prefixo}{(max(numeros) + 1 if numeros else 1):02d}"
+ 
+    def casos_de_uso(self) -> list[CasoDeUso]:
+        if not self.casos_dir.exists():
+            return []
+        itens = [
+            self._ler(caminho, CasoDeUso)
+            for caminho in sorted(self.casos_dir.glob("*.json"))
+        ]
+        itens.sort(key=lambda c: c.numero)
+        return itens
+ 
+    def caso_de_uso(self, caso_id: str) -> CasoDeUso:
+        return self._ler(self.casos_dir / f"{caso_id}.json", CasoDeUso)
+ 
+    def salvar_caso_de_uso(self, caso: CasoDeUso) -> None:
+        self.casos_dir.mkdir(parents=True, exist_ok=True)
+        self._gravar(self.casos_dir / f"{caso.id}.json", caso)
+ 
+    def excluir_caso_de_uso(self, caso_id: str) -> None:
+        caminho = self.casos_dir / f"{caso_id}.json"
+        if not caminho.exists():
+            raise ErroRepositorio(f"caso de uso {caso_id} nao encontrado")
+        caminho.unlink()
+ 
+    def proximo_id_caso(self) -> str:
+        numeros = [c.numero for c in self.casos_de_uso()]
+        return f"UC{(max(numeros) + 1 if numeros else 1):02d}"
+ 
+    def tarefas_do_requisito(self, requisito_id: str) -> list[Tarefa]:
+        """Rastreabilidade ao contrario: que tarefas atendem este requisito."""
+        return [
+            tarefa
+            for _, tarefa in self.todas_tarefas()
+            if requisito_id in tarefa.requisitos
+        ]
+
+    # -----------------------------------------------------------------
     # Integridade referencial entre arquivos
     # -----------------------------------------------------------------
 
@@ -252,6 +332,8 @@ class Repositorio:
         entregas = projeto.ids_entregas
         vistos: dict[str, str] = {}
 
+        ids_requisitos = {r.id for r in self.requisitos()}
+
         for chave, board in boards.items():
             if chave != NAO_ATRIBUIDAS:
                 if chave not in ids_membros:
@@ -265,6 +347,10 @@ class Repositorio:
                 problemas.append(f"board/{chave}.json: responsavel deveria ser null")
 
             for t in board.tarefas:
+                for req in t.requisitos:
+                    if req not in ids_requisitos:
+                        problemas.append(f"{t.id}: requisito inexistente '{req}'")
+
                 if t.id in vistos:
                     problemas.append(
                         f"tarefa {t.id} duplicada em {vistos[t.id]} e {chave}"
@@ -287,6 +373,22 @@ class Repositorio:
                     "nao esta na equipe"
                 )
 
+        for caso in self.casos_de_uso():
+            for req in caso.requisitos:
+                if req not in ids_requisitos:
+                    problemas.append(
+                        f"{caso.id}: referencia cruzada para requisito "
+                        f"inexistente '{req}'"
+                )
+
+        ids_atores = {a.id for a in self.atores().atores}
+        for caso in self.casos_de_uso():
+            if caso.ator_principal and caso.ator_principal not in ids_atores:
+                problemas.append(
+                    f"{caso.id}: ator principal '{caso.ator_principal}' "
+                    "nao esta cadastrado"
+                )
+
         return problemas
 
     def arquivos_do_board_faltando(self) -> list[str]:
@@ -294,3 +396,44 @@ class Repositorio:
         existentes = {p.stem for p in self.board_dir.glob("*.json")}
         esperados = {m.id for m in self.equipe().membros if m.perfil != "professor"}
         return sorted(esperados - existentes)
+
+    # -----------------------------------------------------------------
+    # ERS: documento, atores e glossario
+    #
+    # Estes tres sao arquivos unicos, nao um por item: sao pequenos e
+    # quase sempre editados por uma pessoa so. O board precisou de
+    # granularidade; aqui ela seria custo sem beneficio.
+    # -----------------------------------------------------------------
+ 
+    def _ler_ou_padrao(self, caminho: Path, modelo):
+        """Devolve o objeto vazio quando o arquivo ainda nao existe.
+ 
+        A ERS e preenchida ao longo do semestre: abrir a tela antes de
+        existir arquivo tem que funcionar, nao dar erro.
+        """
+        return self._ler(caminho, modelo) if caminho.exists() else modelo()
+ 
+    def documento(self) -> Documento:
+        return self._ler_ou_padrao(self.ers_dir / "documento.json", Documento)
+ 
+    def salvar_documento(self, documento: Documento) -> None:
+        self.ers_dir.mkdir(parents=True, exist_ok=True)
+        self._gravar(self.ers_dir / "documento.json", documento)
+ 
+    def atores(self) -> Atores:
+        return self._ler_ou_padrao(self.ers_dir / "atores.json", Atores)
+ 
+    def salvar_atores(self, atores: Atores) -> None:
+        self.ers_dir.mkdir(parents=True, exist_ok=True)
+        atores.atores.sort(key=lambda a: a.nome.lower())
+        self._gravar(self.ers_dir / "atores.json", atores)
+ 
+    def glossario(self) -> Glossario:
+        return self._ler_ou_padrao(self.ers_dir / "glossario.json", Glossario)
+ 
+    def salvar_glossario(self, glossario: Glossario) -> None:
+        self.ers_dir.mkdir(parents=True, exist_ok=True)
+        # Ordem alfabetica no arquivo: e como o glossario e lido no
+        # documento, e mantem o diff estavel a cada insercao.
+        glossario.termos.sort(key=lambda t: t.termo.lower())
+        self._gravar(self.ers_dir / "glossario.json", glossario)

@@ -1,0 +1,26 @@
+{
+  "id": "RF_F07",
+  "tipo": "fundamental",
+  "titulo": "Responder solicitação de amizade",
+  "descricao": "O destinatário de uma solicitação a aceita ou recusa.",
+  "entradas": [
+    "solicitação pendente",
+    "decisão de aceite ou recusa"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "situação da amizade atualizada"
+  ],
+  "regras": [
+    "somente o destinatário pode responder a solicitação",
+    "o aceite torna as publicações mutuamente visíveis",
+    "a recusa remove a solicitação, permitindo novo pedido futuro"
+  ],
+  "criterios_aceite": [
+    "tentativa de aceitar solicitação de terceiros é recusada",
+    "após o aceite, as publicações do novo amigo aparecem no feed"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

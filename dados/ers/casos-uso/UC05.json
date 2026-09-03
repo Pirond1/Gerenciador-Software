@@ -1,0 +1,44 @@
+{
+  "id": "UC05",
+  "nome": "Comentar postagem",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_F05",
+    "RF_S03"
+  ],
+  "pre_condicao": "O usuário está autenticado e visualiza uma publicação visível para ele",
+  "pos_condicao": "O comentário é registrado e passa a constar na publicação",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "abre a publicação e consulta os comentários existentes"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta os comentários em ordem crescente de data"
+    },
+    {
+      "ator": "O usuário",
+      "acao": "redige o comentário e confirma o envio"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "registra o comentário e atualiza o total da publicação"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Comentário fora do tamanho permitido",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "identifica texto vazio ou acima de 280 caracteres"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "recusa o envio e destaca o limite"
+        }
+      ]
+    }
+  ]
+}

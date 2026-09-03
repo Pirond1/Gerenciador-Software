@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Editar ERS — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">especificacao</p>
+    <h1>Secoes em prosa</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/ers">Voltar</a>
+</header>
+
+<p class="entrada__nota">
+  Todos os campos aceitam Markdown. As funcoes do produto (2.2), o glossario (1.3)
+  e os atores (3.1) sao editados nas telas proprias.
+</p>
+
+<form class="formulario formulario--prosa" method="post" action="/ers/salvar">
+  {% for campo, numero, titulo in secoes %}
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">{{ numero }} — {{ titulo }}</span>
+    <textarea name="{{ campo }}" rows="6">{{ doc[campo] }}</textarea>
+  </label>
+  {% endfor %}
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">1.4 — Referencias</span>
+    <textarea name="referencias" rows="4"
+              placeholder="Uma por linha">{{ doc.referencias|join('\n') }}</textarea>
+  </label>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Salvar ERS</button>
+  </div>
+</form>
+{% endblock %}

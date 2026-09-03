@@ -1,0 +1,28 @@
+{
+  "id": "RF_F02",
+  "tipo": "fundamental",
+  "titulo": "Publicar postagem",
+  "descricao": "O usuário redige um texto e solicita sua publicação. O conteúdo é submetido à moderação automática (RF_F03) antes de ser gravado; somente conteúdo aprovado passa a existir no sistema.",
+  "entradas": [
+    "texto da publicação"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "publicação criada",
+    "ou motivo da recusa"
+  ],
+  "regras": [
+    "o texto tem entre 1 e 280 caracteres",
+    "nenhum dado é gravado antes do resultado da moderação",
+    "conteúdo recusado permanece disponível ao autor para correção",
+    "a publicação torna-se visível para o autor e para seus amigos aceitos"
+  ],
+  "criterios_aceite": [
+    "publicação recusada pela moderação não gera registro na base de dados",
+    "publicação aprovada aparece no topo do feed dos amigos",
+    "texto vazio ou acima de 280 caracteres é recusado"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

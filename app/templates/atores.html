@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block titulo %}Atores — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">3.1 atores · 2.3 caracteristicas do usuario</p>
+    <h1>Atores</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/ers">Voltar a ERS</a>
+</header>
+
+<p class="entrada__nota">
+  A mesma lista alimenta o diagrama de casos de uso e a tabela de
+  caracteristicas do usuario.
+</p>
+
+{% if atores %}
+<table class="tabela">
+  <thead>
+    <tr>
+      <th>Ator</th><th>Descricao</th><th>Frequencia</th>
+      <th>Instrucao</th><th>Proficiencia</th>
+      {% if editavel %}<th></th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in atores %}
+    <tr>
+      <td><strong>{{ a.nome }}</strong><br><span class="cod cod--fraco">{{ a.id }}</span></td>
+      <td>{{ a.descricao }}</td>
+      <td>{{ a.frequencia_uso }}</td>
+      <td>{{ a.nivel_instrucao }}</td>
+      <td>{{ a.proficiencia }}</td>
+      {% if editavel %}
+      <td class="tabela__acoes">
+        <form method="post" action="/ers/ator/excluir"
+              onsubmit="return confirm('Excluir o ator {{ a.nome }}?')">
+          <input type="hidden" name="ator_id" value="{{ a.id }}">
+          <button class="ligacao-perigo" type="submit">excluir</button>
+        </form>
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vazio vazio--esquerda">Nenhum ator cadastrado.</p>
+{% endif %}
+
+{% if editavel %}
+<form class="formulario formulario--linha" method="post" action="/ers/ator/salvar">
+  <label class="campo">
+    <span class="campo__rotulo">Nome</span>
+    <input name="nome" required maxlength="60" placeholder="Usuario comum">
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Descricao</span>
+    <input name="descricao" maxlength="120">
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Frequencia de uso</span>
+    <input name="frequencia_uso" maxlength="40" placeholder="diaria">
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Nivel de instrucao</span>
+    <input name="nivel_instrucao" maxlength="40" placeholder="medio">
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Proficiencia</span>
+    <input name="proficiencia" maxlength="40" placeholder="basica">
+  </label>
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Adicionar ator</button>
+    <span class="campo__ajuda">Cadastrar com um nome ja existente substitui o ator.</span>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

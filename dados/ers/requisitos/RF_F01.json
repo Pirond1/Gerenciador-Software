@@ -1,0 +1,26 @@
+{
+  "id": "RF_F01",
+  "tipo": "fundamental",
+  "titulo": "Autenticar usuário",
+  "descricao": "O usuário informa suas credenciais e recebe uma credencial temporária que dá acesso às demais funções do sistema.",
+  "entradas": [
+    "identificador público ou e-mail",
+    "senha"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "credencial de acesso",
+    "dados do usuário autenticado"
+  ],
+  "regras": [
+    "credenciais inválidas produzem mensagem genérica, sem indicar qual campo está errado",
+    "o encerramento da sessão invalida a credencial"
+  ],
+  "criterios_aceite": [
+    "senha incorreta não revela se o usuário existe",
+    "requisição sem credencial válida é recusada"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

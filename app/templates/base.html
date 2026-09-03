@@ -19,6 +19,8 @@
       {% set atual = request.url.path %}
       <a class="navegacao__item {% if atual == '/' %}navegacao__item--ativo{% endif %}" href="/">Board</a>
       <a class="navegacao__item {% if atual == '/entregas' %}navegacao__item--ativo{% endif %}" href="/entregas">Entregas</a>
+      <a class="navegacao__item {% if atual.startswith('/ers') %}navegacao__item--ativo{% endif %}" href="/ers">ERS</a>
+      <a class="navegacao__item {% if atual.startswith('/requisito') %}navegacao__item--ativo{% endif %}" href="/requisitos">Requisitos</a>
       <a class="navegacao__item {% if atual == '/equipe' %}navegacao__item--ativo{% endif %}" href="/equipe">Equipe</a>
       <a class="navegacao__item {% if atual == '/stack' %}navegacao__item--ativo{% endif %}" href="/stack">Stack</a>
     </nav>

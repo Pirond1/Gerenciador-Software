@@ -1,0 +1,32 @@
+{
+  "id": "RF_S01",
+  "tipo": "saida",
+  "titulo": "Consultar feed",
+  "descricao": "O usuário visualiza as publicações de seus amigos e as suas próprias, da mais recente para a mais antiga, carregadas em blocos conforme a rolagem.",
+  "entradas": [
+    "quantidade de itens por bloco",
+    "marcador de posição (cursor)"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "autor",
+    "texto da publicação",
+    "data e hora",
+    "total de curtidas",
+    "total de comentários",
+    "indicação de curtida do próprio usuário"
+  ],
+  "regras": [
+    "apenas publicações do próprio usuário e de amizades aceitas são exibidas",
+    "a ordenação é decrescente por data de publicação",
+    "o bloco tem no máximo 50 itens"
+  ],
+  "criterios_aceite": [
+    "publicação de usuário sem amizade aceita não aparece",
+    "a ordem cronológica decrescente é respeitada",
+    "publicações novas durante a rolagem não causam repetição de itens"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

@@ -45,8 +45,28 @@ class Prioridade(str, Enum):
 
 
 class TipoRequisito(str, Enum):
-    FUNCIONAL = "funcional"
-    NAO_FUNCIONAL = "nao_funcional"
+    """Classificacao do modelo de ERS do professor.
+ 
+    As funcoes do produto (secao 2.2) sao divididas em tres grupos, e o
+    prefixo do id acompanha o grupo: RF_B01, RF_F01, RF_S01. RNF nao tem
+    secao propria no modelo -- entra em 2.4 -- mas modelamos igual para
+    poder rastrear.
+    """
+ 
+    BASICA = "basica"            # RF_B — CRUD
+    FUNDAMENTAL = "fundamental"  # RF_F — transacoes de negocio
+    SAIDA = "saida"              # RF_S — consultas e relatorios
+    NAO_FUNCIONAL = "nao_funcional"  # RNF
+ 
+ 
+# Prefixo do id para cada tipo. Fonte unica: usado na validacao cruzada
+# e na geracao do proximo id.
+PREFIXO_REQUISITO = {
+    TipoRequisito.BASICA: "RF_B",
+    TipoRequisito.FUNDAMENTAL: "RF_F",
+    TipoRequisito.SAIDA: "RF_S",
+    TipoRequisito.NAO_FUNCIONAL: "RNF",
+}
 
 
 class StatusRequisito(str, Enum):
@@ -246,11 +266,151 @@ class Stack(Base):
 
 
 class Requisito(Base):
-    id: str = Field(pattern=r"^(RF|RNF)-\d{3}$")
+    """Uma funcao do produto, no formato da secao 2.2 do modelo.
+ 
+    Os campos de lista servem aos tres tipos com nomes diferentes no
+    documento: em RF_B e RF_F, `entradas` sao os itens de informacao
+    obrigatorios; em RF_S, sao os filtros de consulta.
+    """
+ 
+    id: str = Field(pattern=r"^(RF_[BFS]|RNF)\d{2}$")
     tipo: TipoRequisito
     titulo: str = Field(min_length=1)
     descricao: str = ""
+    entradas: list[str] = Field(default_factory=list)
+    opcionais: list[str] = Field(default_factory=list)
+    saidas: list[str] = Field(default_factory=list)
+    regras: list[str] = Field(default_factory=list)
+    criterios_aceite: list[str] = Field(default_factory=list)
     prioridade: Prioridade = Prioridade.MEDIA
     origem: str = ""
-    criterios_aceite: list[str] = Field(default_factory=list)
     status: StatusRequisito = StatusRequisito.PROPOSTO
+ 
+    @model_validator(mode="after")
+    def _prefixo_combina_com_tipo(self):
+        """RF_B01 nao pode estar marcado como fundamental.
+ 
+        Sem esta checagem, o id e o tipo divergem em silencio e o
+        documento exportado sai com o requisito na secao errada.
+        """
+        esperado = PREFIXO_REQUISITO[self.tipo]
+        if not self.id.startswith(esperado):
+            raise ValueError(
+                f"requisito {self.id}: tipo '{self.tipo.value}' exige "
+                f"prefixo '{esperado}'"
+            )
+        return self
+ 
+    @property
+    def numero(self) -> int:
+        return int(self.id[-2:])
+ 
+ 
+class PassoFluxo(Base):
+    """Um passo numerado de fluxo de caso de uso."""
+ 
+    ator: str = ""          # quem executa: usuario, sistema...
+    acao: str = Field(min_length=1)
+ 
+ 
+class FluxoAlternativo(Base):
+    nome: str = Field(min_length=1)
+    passos: list[PassoFluxo] = Field(default_factory=list)
+ 
+ 
+class CasoDeUso(Base):
+    """Especificacao no formato da secao 3.2 do modelo."""
+ 
+    id: str = Field(pattern=r"^UC\d{2}$")
+    nome: str = Field(min_length=1)
+    ator_principal: str = ""
+    requisitos: list[str] = Field(default_factory=list)  # referencias cruzadas
+    pre_condicao: str = ""
+    pos_condicao: str = ""
+    fluxo_principal: list[PassoFluxo] = Field(default_factory=list)
+    fluxos_alternativos: list[FluxoAlternativo] = Field(default_factory=list)
+ 
+    @property
+    def numero(self) -> int:
+        return int(self.id[2:])
+        
+
+class Revisao(Base):
+    """Uma linha do historico de revisoes da ERS."""
+
+    versao: str = Field(min_length=1)
+    data: date
+    descricao: str = ""
+    autor: str = ""
+
+
+class Documento(Base):
+    """Secoes em prosa da ERS.
+
+    As funcoes do produto (2.2) NAO estao aqui: elas sao os Requisitos, e
+    duplicar o conteudo em dois lugares e o caminho mais curto para o
+    documento divergir de si mesmo.
+
+    Todos os campos aceitam Markdown e nascem vazios: a ERS e preenchida aos
+    poucos, e um arquivo ausente nao pode quebrar o app.
+    """
+
+    objetivo: str = ""                  # 1.1
+    escopo: str = ""                    # 1.2
+    visao_geral: str = ""               # 1.5
+    perspectiva: str = ""               # 2.1
+    caracteristicas_usuario: str = ""   # 2.3 — texto que acompanha a tabela de atores
+    restricoes: str = ""                # 2.4
+    requisitos_adiados: str = ""        # 2.5
+    viabilidade: str = ""               # 2.6
+    referencias: list[str] = Field(default_factory=list)   # 1.4
+    revisoes: list[Revisao] = Field(default_factory=list)
+
+
+class Ator(Base):
+    """Ator do sistema.
+
+    Serve a duas secoes do modelo ao mesmo tempo: a tabela de
+    caracteristicas do usuario (2.3) e o diagrama de casos de uso (3.1).
+    Uma fonte, duas saidas -- em vez de duas listas que divergem.
+    """
+
+    id: str = Field(pattern=r"^[a-z0-9_]+$")
+    nome: str = Field(min_length=1)
+    descricao: str = ""
+    frequencia_uso: str = ""    # diaria, semanal, eventual
+    nivel_instrucao: str = ""
+    proficiencia: str = ""      # basica, intermediaria, avancada
+
+
+class Atores(Base):
+    atores: list[Ator] = Field(default_factory=list)
+
+    @field_validator("atores")
+    @classmethod
+    def _ids_unicos(cls, v: list[Ator]) -> list[Ator]:
+        ids = [a.id for a in v]
+        duplicados = {i for i in ids if ids.count(i) > 1}
+        if duplicados:
+            raise ValueError(f"ids de ator repetidos: {sorted(duplicados)}")
+        return v
+
+
+class Termo(Base):
+    """Entrada de 1.3 — Definicoes, siglas e abreviacoes."""
+
+    termo: str = Field(min_length=1)
+    definicao: str = ""
+
+
+class Glossario(Base):
+    termos: list[Termo] = Field(default_factory=list)
+
+    @field_validator("termos")
+    @classmethod
+    def _termos_unicos(cls, v: list[Termo]) -> list[Termo]:
+        chaves = [t.termo.lower() for t in v]
+        duplicados = {c for c in chaves if chaves.count(c) > 1}
+        if duplicados:
+            raise ValueError(f"termos repetidos no glossario: {sorted(duplicados)}")
+        return v

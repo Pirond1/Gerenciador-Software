@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block titulo %}{% if requisito %}Editar {{ requisito.id }}{% else %}Novo requisito{% endif %}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow"><span class="cod">{{ proximo }}</span> · {% if requisito %}editando{% else %}novo requisito{% endif %}</p>
+    <h1>{% if requisito %}{{ requisito.titulo }}{% else %}Especificar requisito{% endif %}</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/requisitos">Voltar</a>
+</header>
+
+<form class="formulario" method="post" action="/requisito/salvar">
+  <input type="hidden" name="requisito_id" value="{{ requisito.id if requisito else '' }}">
+
+  <label class="campo">
+    <span class="campo__rotulo">Tipo</span>
+    {% if requisito %}
+      <input type="hidden" name="tipo" value="{{ requisito.tipo.value }}">
+      <input value="{{ requisito.tipo.value }}" disabled>
+      <span class="campo__ajuda">O tipo nao muda: ele esta no prefixo do id, e renomear
+        quebraria as tarefas ja vinculadas.</span>
+    {% else %}
+      <select name="tipo">
+        {% for tipo, rotulo in secoes %}
+        <option value="{{ tipo.value }}" {% if tipo == tipo_novo %}selected{% endif %}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+      <span class="campo__ajuda">Define o prefixo do id e a secao na ERS.</span>
+    {% endif %}
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Prioridade</span>
+    <select name="prioridade">
+      {% for p in ['alta', 'media', 'baixa'] %}
+      <option value="{{ p }}" {% if requisito and requisito.prioridade.value == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Situacao</span>
+    <select name="status">
+      {% for s in ['proposto', 'aprovado', 'implementado', 'cancelado'] %}
+      <option value="{{ s }}" {% if requisito and requisito.status.value == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Titulo</span>
+    <input name="titulo" required maxlength="120" autofocus
+           placeholder="Gerenciar usuario"
+           value="{{ requisito.titulo if requisito else '' }}">
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Descricao</span>
+    <textarea name="descricao" rows="4" placeholder="Aceita Markdown.">{{ requisito.descricao if requisito else '' }}</textarea>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Itens obrigatorios / filtros de consulta</span>
+    <textarea name="entradas" rows="4"
+              placeholder="Um por linha">{{ requisito.entradas|join('\n') if requisito else '' }}</textarea>
+    <span class="campo__ajuda">Em RF_B e RF_F sao os campos obrigatorios; em RF_S, os filtros.</span>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Itens opcionais</span>
+    <textarea name="opcionais" rows="3">{{ requisito.opcionais|join('\n') if requisito else '' }}</textarea>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Itens de saida</span>
+    <textarea name="saidas" rows="3"
+              placeholder="O que a consulta devolve (RF_S)">{{ requisito.saidas|join('\n') if requisito else '' }}</textarea>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Regras de validacao</span>
+    <textarea name="regras" rows="4">{{ requisito.regras|join('\n') if requisito else '' }}</textarea>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Criterios de aceite</span>
+    <textarea name="criterios_aceite" rows="4"
+              placeholder="Como saber que esta pronto">{{ requisito.criterios_aceite|join('\n') if requisito else '' }}</textarea>
+    <span class="campo__ajuda">Vira caso de teste na T-048.</span>
+  </label>
+
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Origem</span>
+    <input name="origem" maxlength="120" placeholder="Reuniao de 28/08, cliente, professor"
+           value="{{ requisito.origem if requisito else '' }}">
+  </label>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">
+      {% if requisito %}Salvar alteracoes{% else %}Criar requisito{% endif %}
+    </button>
+  </div>
+</form>
+{% endblock %}

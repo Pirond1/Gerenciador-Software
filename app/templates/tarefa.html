@@ -46,7 +46,7 @@
       <dt>Requisitos</dt>
       <dd>
         {% if tarefa.requisitos %}
-          {% for r in tarefa.requisitos %}<span class="cod">{{ r }}</span>{% endfor %}
+          {% for r in tarefa.requisitos %}<a class="cod" href="/requisito/{{ r }}">{{ r }}</a>{% endfor %}
         {% else %}<span class="tenue">nenhum vinculado</span>{% endif %}
       </dd>
     </dl>

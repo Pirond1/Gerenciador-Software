@@ -17,20 +17,25 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+from urllib.parse import quote
+from app import exportar
 
 from pydantic import BaseModel
 
 import markdown as md
 
 from app import gitinfo
-from app.models import Entrega, Membro, Perfil
+from app.models import CasoDeUso, Entrega, Membro, Perfil, Requisito, TipoRequisito, PREFIXO_REQUISITO, Ator, Atores, Documento, Glossario, Revisao, Termo
 from app.repositorio import NAO_ATRIBUIDAS, ErroRepositorio, Repositorio
+import unicodedata
 
 APP_DIR = Path(__file__).resolve().parent
 RAIZ = APP_DIR.parent
+DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 app = FastAPI(title="Gerenciador de Software")
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
@@ -39,6 +44,18 @@ repo = Repositorio(RAIZ)
 
 # Disponivel em qualquer template sem precisar passar rota por rota.
 templates.env.globals["git_estado"] = lambda: gitinfo.estado(RAIZ)
+ 
+# Cada secao em prosa: campo do modelo, numero e titulo no documento.
+SECOES_PROSA = [
+    ("objetivo", "1.1", "Objetivo"),
+    ("escopo", "1.2", "Escopo"),
+    ("visao_geral", "1.5", "Visao geral"),
+    ("perspectiva", "2.1", "Perspectiva do produto"),
+    ("caracteristicas_usuario", "2.3", "Caracteristicas do usuario"),
+    ("restricoes", "2.4", "Restricoes, dependencias e suposicoes"),
+    ("requisitos_adiados", "2.5", "Requisitos adiados"),
+    ("viabilidade", "2.6", "Estudo de viabilidade"),
+]
 
 
 def _escapar_fora_de_codigo(texto: str) -> str:
@@ -286,6 +303,7 @@ def contexto_formulario(request: Request, eu: Membro, tarefa=None, chave: str = 
         "membros": [m for m in repo.equipe().membros if m.perfil != Perfil.PROFESSOR],
         "colunas": projeto.colunas,
         "entregas": projeto.entregas,
+        "requisitos_disponiveis": repo.requisitos(),
         "prioridades": ["alta", "media", "baixa"],
     }
 
@@ -311,6 +329,7 @@ def criar_tarefa(
     status: str = Form(...),
     prioridade: str = Form("media"),
     entrega: str = Form(""),
+    requisitos: list[str] = Form([]),
 ):
     eu = atual(request)
     if not pode_editar(eu):
@@ -324,6 +343,7 @@ def criar_tarefa(
         status=status,
         prioridade=prioridade,
         entrega=_ou_nulo(entrega),
+        requisitos=requisitos
     )
     return RedirectResponse("/", status_code=303)
 
@@ -359,6 +379,7 @@ def salvar_edicao(
     status: str = Form(...),
     prioridade: str = Form("media"),
     entrega: str = Form(""),
+    requisitos: list[str] = Form([]),
 ):
     eu = atual(request)
     if not pode_editar(eu):
@@ -374,6 +395,7 @@ def salvar_edicao(
         status=status,
         prioridade=prioridade,
         entrega=_ou_nulo(entrega),
+        requisitos=requisitos,
     )
 
     # Trocar de dono e mudar a tarefa de arquivo: operacao separada.
@@ -749,4 +771,412 @@ def git_verificar(request: Request):
     return _tela_git(
         request, eu,
         {"acao": "Verificar o servidor", "ok": ok, "saida": saida},
+    )
+
+# Rotulos das secoes do documento, na ordem em que aparecem na ERS.
+SECOES_REQUISITO = [
+    (TipoRequisito.BASICA, "2.2.1 Funcoes basicas"),
+    (TipoRequisito.FUNDAMENTAL, "2.2.2 Funcoes fundamentais"),
+    (TipoRequisito.SAIDA, "2.2.3 Funcoes de saida"),
+    (TipoRequisito.NAO_FUNCIONAL, "Requisitos nao funcionais"),
+]
+ 
+ 
+def _linhas(texto: str) -> list[str]:
+    """Textarea com um item por linha vira lista, descartando linhas vazias."""
+    return [linha.strip() for linha in texto.splitlines() if linha.strip()]
+ 
+ 
+@app.get("/requisitos")
+def ver_requisitos(request: Request):
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+ 
+    try:
+        requisitos = repo.requisitos()
+    except ErroRepositorio as e:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": str(e)}, status_code=500)
+ 
+    # Quantas tarefas atendem cada requisito: e a metade visivel da
+    # rastreabilidade. Zero aqui significa requisito que ninguem vai construir.
+    vinculos = {r.id: 0 for r in requisitos}
+    for _, tarefa in repo.todas_tarefas():
+        for req in tarefa.requisitos:
+            if req in vinculos:
+                vinculos[req] += 1
+ 
+    secoes = [
+        {"titulo": titulo, "tipo": tipo.value,
+         "itens": [r for r in requisitos if r.tipo == tipo]}
+        for tipo, titulo in SECOES_REQUISITO
+    ]
+ 
+    return templates.TemplateResponse(
+        request=request, name="requisitos.html",
+        context={
+            "projeto": repo.projeto(), "eu": eu,
+            "editavel": pode_editar(eu),
+            "secoes": secoes, "vinculos": vinculos,
+            "total": len(requisitos),
+            "orfaos": sum(1 for r in requisitos if not vinculos.get(r.id)),
+        })
+ 
+ 
+@app.get("/requisito/novo")
+def form_requisito_novo(request: Request, tipo: str = "basica"):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/requisitos", status_code=303)
+ 
+    try:
+        tipo_enum = TipoRequisito(tipo)
+    except ValueError:
+        tipo_enum = TipoRequisito.BASICA
+ 
+    return templates.TemplateResponse(
+        request=request, name="requisito_form.html",
+        context={
+            "projeto": repo.projeto(), "eu": eu, "requisito": None,
+            "tipo_novo": tipo_enum,
+            "proximo": repo.proximo_id_requisito(tipo_enum),
+            "secoes": SECOES_REQUISITO,
+        })
+ 
+ 
+@app.get("/requisito/{requisito_id}/editar")
+def form_requisito_editar(request: Request, requisito_id: str):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/requisitos", status_code=303)
+ 
+    try:
+        requisito = repo.requisito(requisito_id)
+    except ErroRepositorio as e:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": str(e)}, status_code=404)
+ 
+    return templates.TemplateResponse(
+        request=request, name="requisito_form.html",
+        context={
+            "projeto": repo.projeto(), "eu": eu, "requisito": requisito,
+            "tipo_novo": requisito.tipo, "proximo": requisito.id,
+            "secoes": SECOES_REQUISITO,
+        })
+ 
+ 
+@app.post("/requisito/salvar")
+def salvar_requisito(
+    request: Request,
+    requisito_id: str = Form(""),
+    tipo: str = Form(...),
+    titulo: str = Form(...),
+    descricao: str = Form(""),
+    entradas: str = Form(""),
+    opcionais: str = Form(""),
+    saidas: str = Form(""),
+    regras: str = Form(""),
+    criterios_aceite: str = Form(""),
+    prioridade: str = Form("media"),
+    origem: str = Form(""),
+    status: str = Form("proposto"),
+):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/requisitos", status_code=303)
+ 
+    tipo_enum = TipoRequisito(tipo)
+    # Na edicao o id nao muda: ele carrega o tipo no prefixo, e renomear
+    # quebraria toda tarefa e caso de uso que ja aponta para ele.
+    novo_id = requisito_id or repo.proximo_id_requisito(tipo_enum)
+ 
+    requisito = Requisito(
+        id=novo_id, tipo=tipo_enum, titulo=titulo, descricao=descricao,
+        entradas=_linhas(entradas), opcionais=_linhas(opcionais),
+        saidas=_linhas(saidas), regras=_linhas(regras),
+        criterios_aceite=_linhas(criterios_aceite),
+        prioridade=prioridade, origem=origem, status=status,
+    )
+    repo.salvar_requisito(requisito)
+    return RedirectResponse(f"/requisito/{requisito.id}", status_code=303)
+ 
+ 
+@app.get("/requisito/{requisito_id}")
+def ver_requisito(request: Request, requisito_id: str):
+    """Visivel para todos, inclusive o professor."""
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+ 
+    try:
+        requisito = repo.requisito(requisito_id)
+    except ErroRepositorio as e:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": str(e)}, status_code=404)
+ 
+    equipe = repo.equipe()
+    tarefas = [
+        {"tarefa": t, "dono": equipe.por_id(chave)}
+        for chave, t in repo.todas_tarefas()
+        if requisito_id in t.requisitos
+    ]
+ 
+    return templates.TemplateResponse(
+        request=request, name="requisito.html",
+        context={
+            "projeto": repo.projeto(), "eu": eu,
+            "editavel": pode_editar(eu),
+            "requisito": requisito,
+            "descricao_html": render_markdown(requisito.descricao),
+            "tarefas": tarefas,
+            "casos": [c for c in repo.casos_de_uso() if requisito_id in c.requisitos],
+        })
+ 
+ 
+@app.post("/requisito/{requisito_id}/excluir")
+def excluir_requisito(request: Request, requisito_id: str):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/requisitos", status_code=303)
+ 
+    # Mesma regra da entrega: nao deixar referencia orfa para tras.
+    ligadas = [t.id for _, t in repo.todas_tarefas() if requisito_id in t.requisitos]
+    if ligadas:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem":
+                     f"{requisito_id} nao pode ser excluido: "
+                     f"{len(ligadas)} tarefa(s) apontam para ele "
+                     f"({', '.join(ligadas[:8])}). Desvincule-as primeiro."},
+            status_code=409)
+ 
+    repo.excluir_requisito(requisito_id)
+    return RedirectResponse("/requisitos", status_code=303)
+
+ 
+def _slug(texto: str) -> str:
+    """Nome legivel vira id estavel: 'Usuario Comum' -> 'usuario_comum'."""
+    sem_acento = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+    limpo = "".join(c if c.isalnum() else "_" for c in sem_acento.lower())
+    return "_".join(p for p in limpo.split("_") if p) or "ator"
+ 
+ 
+@app.get("/ers")
+def ver_ers(request: Request):
+    """Panorama do documento: o que ja existe e o que falta."""
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+ 
+    try:
+        doc = repo.documento()
+        atores = repo.atores().atores
+        glossario = repo.glossario().termos
+        requisitos = repo.requisitos()
+        casos = repo.casos_de_uso()
+    except ErroRepositorio as e:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": str(e)}, status_code=500)
+ 
+    secoes = [
+        {"campo": campo, "numero": numero, "titulo": titulo,
+         "texto": getattr(doc, campo),
+         "palavras": len(getattr(doc, campo).split())}
+        for campo, numero, titulo in SECOES_PROSA
+    ]
+    preenchidas = sum(1 for s in secoes if s["palavras"])
+ 
+    return templates.TemplateResponse(
+        request=request, name="ers.html",
+        context={
+            "projeto": repo.projeto(), "eu": eu,
+            "editavel": pode_editar(eu),
+            "doc": doc, "secoes": secoes,
+            "preenchidas": preenchidas, "total_secoes": len(secoes),
+            "atores": atores, "glossario": glossario,
+            "requisitos": requisitos, "casos": casos,
+            "por_tipo": {
+                tipo.value: sum(1 for r in requisitos if r.tipo == tipo)
+                for tipo, _ in SECOES_REQUISITO
+            },
+        })
+ 
+ 
+@app.get("/ers/editar")
+def form_ers(request: Request):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers", status_code=303)
+    return templates.TemplateResponse(
+        request=request, name="ers_form.html",
+        context={"projeto": repo.projeto(), "eu": eu,
+                 "doc": repo.documento(), "secoes": SECOES_PROSA})
+ 
+ 
+@app.post("/ers/salvar")
+async def salvar_ers(request: Request):
+    """Le os campos dinamicamente: a lista de secoes mora em SECOES_PROSA.
+ 
+    Declarar oito parametros Form aqui obrigaria a mexer em dois lugares
+    toda vez que uma secao entrasse ou saisse do documento.
+    """
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers", status_code=303)
+ 
+    formulario = await request.form()
+    doc = repo.documento()
+    for campo, _, _ in SECOES_PROSA:
+        setattr(doc, campo, formulario.get(campo, ""))
+    doc.referencias = _linhas(formulario.get("referencias", ""))
+    repo.salvar_documento(doc)
+    return RedirectResponse("/ers", status_code=303)
+ 
+ 
+# ---------------------------------------------------------------------------
+# Atores
+# ---------------------------------------------------------------------------
+ 
+ 
+@app.get("/ers/atores")
+def ver_atores(request: Request):
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+    return templates.TemplateResponse(
+        request=request, name="atores.html",
+        context={"projeto": repo.projeto(), "eu": eu,
+                 "editavel": pode_editar(eu),
+                 "atores": repo.atores().atores,
+                 "casos": repo.casos_de_uso()})
+ 
+ 
+@app.post("/ers/ator/salvar")
+def salvar_ator(
+    request: Request,
+    ator_id: str = Form(""),
+    nome: str = Form(...),
+    descricao: str = Form(""),
+    frequencia_uso: str = Form(""),
+    nivel_instrucao: str = Form(""),
+    proficiencia: str = Form(""),
+):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/atores", status_code=303)
+ 
+    lista = repo.atores()
+    novo = Ator(id=ator_id or _slug(nome), nome=nome, descricao=descricao,
+                frequencia_uso=frequencia_uso, nivel_instrucao=nivel_instrucao,
+                proficiencia=proficiencia)
+    lista.atores = [a for a in lista.atores if a.id != novo.id] + [novo]
+    repo.salvar_atores(lista)
+    return RedirectResponse("/ers/atores", status_code=303)
+ 
+ 
+@app.post("/ers/ator/excluir")
+def excluir_ator(request: Request, ator_id: str = Form(...)):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/atores", status_code=303)
+ 
+    usados = [c.id for c in repo.casos_de_uso() if c.ator_principal == ator_id]
+    if usados:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem":
+                     f"ator '{ator_id}' e ator principal de {', '.join(usados)}. "
+                     "Troque o ator desses casos de uso antes de excluir."},
+            status_code=409)
+ 
+    lista = repo.atores()
+    lista.atores = [a for a in lista.atores if a.id != ator_id]
+    repo.salvar_atores(lista)
+    return RedirectResponse("/ers/atores", status_code=303)
+ 
+ 
+# ---------------------------------------------------------------------------
+# Glossario
+# ---------------------------------------------------------------------------
+ 
+ 
+@app.get("/ers/glossario")
+def ver_glossario(request: Request):
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+    return templates.TemplateResponse(
+        request=request, name="glossario.html",
+        context={"projeto": repo.projeto(), "eu": eu,
+                 "editavel": pode_editar(eu),
+                 "termos": repo.glossario().termos})
+ 
+ 
+@app.post("/ers/termo/salvar")
+def salvar_termo(
+    request: Request,
+    original: str = Form(""),
+    termo: str = Form(...),
+    definicao: str = Form(""),
+):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/glossario", status_code=303)
+ 
+    glossario = repo.glossario()
+    chave = (original or termo).lower()
+    glossario.termos = [t for t in glossario.termos if t.termo.lower() != chave]
+    glossario.termos.append(Termo(termo=termo, definicao=definicao))
+    repo.salvar_glossario(glossario)
+    return RedirectResponse("/ers/glossario", status_code=303)
+ 
+ 
+@app.post("/ers/termo/excluir")
+def excluir_termo(request: Request, termo: str = Form(...)):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/glossario", status_code=303)
+ 
+    glossario = repo.glossario()
+    glossario.termos = [t for t in glossario.termos if t.termo.lower() != termo.lower()]
+    repo.salvar_glossario(glossario)
+    return RedirectResponse("/ers/glossario", status_code=303)
+ 
+@app.get("/ers/exportar")
+def exportar_ers(request: Request):
+    """Gera a ERS em .docx a partir dos mesmos JSONs que alimentam as telas.
+ 
+    Nada e gravado em disco: o arquivo e montado em memoria e enviado. Um
+    .docx no repositorio ficaria desatualizado no minuto seguinte e ainda
+    entraria em conflito de merge a cada geracao.
+    """
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+ 
+    try:
+        arquivo = exportar.gerar(repo)
+    except ErroRepositorio as e:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": str(e)}, status_code=500)
+ 
+    projeto = repo.projeto()
+    nome = f"ERS - {projeto.nome} - {date.today():%Y-%m-%d}.docx"
+ 
+    return StreamingResponse(
+        arquivo,
+        media_type=DOCX,
+        headers={
+            # filename* com UTF-8 preserva acentos do nome do projeto; o
+            # filename simples fica como reserva para clientes antigos.
+            "Content-Disposition":
+                f"attachment; filename=ERS.docx; "
+                f"filename*=UTF-8''{quote(nome)}"
+        },
     )

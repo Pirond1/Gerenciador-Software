@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block titulo %}ERS — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">especificacao de requisitos de software</p>
+    <h1>{{ projeto.nome }}</h1>
+  </div>
+  <div class="cabecalho__direita">
+    <a class="botao botao--fantasma" href="/ers/exportar">Exportar .docx</a>
+    {% if editavel %}<a class="botao" href="/ers/editar">Editar secoes</a>{% endif %}
+  </div>
+</header>
+
+<div class="painel-ers">
+  <div class="painel-ers__num">
+    <span class="sync__valor">{{ preenchidas }}<span class="progresso__unidade">/{{ total_secoes }}</span></span>
+    <span class="sync__rotulo">secoes escritas</span>
+  </div>
+  <div class="painel-ers__num">
+    <span class="sync__valor">{{ requisitos|length }}</span>
+    <span class="sync__rotulo">requisitos</span>
+  </div>
+  <div class="painel-ers__num">
+    <span class="sync__valor">{{ atores|length }}</span>
+    <span class="sync__rotulo">atores</span>
+  </div>
+  <div class="painel-ers__num">
+    <span class="sync__valor">{{ glossario|length }}</span>
+    <span class="sync__rotulo">termos</span>
+  </div>
+  <div class="painel-ers__num">
+    <span class="sync__valor">{{ casos|length }}</span>
+    <span class="sync__rotulo">casos de uso</span>
+  </div>
+</div>
+
+<div class="secoes">
+  {% for s in secoes %}
+  <article class="secao {% if not s.palavras %}secao--vazia{% endif %}">
+    <p class="secao__numero">{{ s.numero }}</p>
+    <h2 class="secao__titulo">{{ s.titulo }}</h2>
+    {% if s.palavras %}
+      <p class="secao__estado">{{ s.palavras }} palavras</p>
+    {% else %}
+      <p class="secao__estado secao__estado--falta">nao escrita</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+
+  <a class="secao secao--link {% if not requisitos %}secao--vazia{% endif %}" href="/requisitos">
+    <p class="secao__numero">2.2</p>
+    <h2 class="secao__titulo">Funcoes do produto</h2>
+    <p class="secao__estado">
+      {{ por_tipo.basica }} basicas · {{ por_tipo.fundamental }} fundamentais ·
+      {{ por_tipo.saida }} de saida
+    </p>
+  </a>
+
+  <a class="secao secao--link {% if not glossario %}secao--vazia{% endif %}" href="/ers/glossario">
+    <p class="secao__numero">1.3</p>
+    <h2 class="secao__titulo">Definicoes e siglas</h2>
+    <p class="secao__estado">{{ glossario|length }} termo(s)</p>
+  </a>
+
+  <a class="secao secao--link {% if not atores %}secao--vazia{% endif %}" href="/ers/atores">
+    <p class="secao__numero">3.1</p>
+    <h2 class="secao__titulo">Atores</h2>
+    <p class="secao__estado">{{ atores|length }} ator(es)</p>
+  </a>
+
+  <article class="secao {% if not doc.referencias %}secao--vazia{% endif %}">
+    <p class="secao__numero">1.4</p>
+    <h2 class="secao__titulo">Referencias</h2>
+    <p class="secao__estado">{{ doc.referencias|length }} item(ns)</p>
+  </article>
+</div>
+
+{% if doc.revisoes %}
+<section class="grupo">
+  <p class="campo__rotulo">Historico de revisoes</p>
+  <table class="tabela">
+    <thead><tr><th>Versao</th><th>Data</th><th>Descricao</th><th>Autor</th></tr></thead>
+    <tbody>
+      {% for r in doc.revisoes %}
+      <tr>
+        <td class="cod">{{ r.versao }}</td>
+        <td>{{ r.data.strftime('%d/%m/%Y') }}</td>
+        <td>{{ r.descricao }}</td>
+        <td>{{ r.autor }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{
+  "id": "RNF02",
+  "tipo": "nao_funcional",
+  "titulo": "Tempo de resposta da moderação",
+  "descricao": "A análise de conteúdo deve concluir em até 10 segundos. Ultrapassado esse limite, a tentativa é abortada e tratada como indisponibilidade (RNF01).",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "o tempo limite é configurável por variável de ambiente",
+    "a interface indica que a análise está em andamento durante a espera"
+  ],
+  "criterios_aceite": [
+    "resposta acima de 10 segundos resulta em indisponibilidade, não em espera indefinida"
+  ],
+  "prioridade": "alta",
+  "origem": "Política de moderação (T-012)",
+  "status": "aprovado"
+}

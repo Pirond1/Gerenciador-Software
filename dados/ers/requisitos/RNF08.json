@@ -1,0 +1,18 @@
+{
+  "id": "RNF08",
+  "tipo": "nao_funcional",
+  "titulo": "Portabilidade do ambiente",
+  "descricao": "O ambiente de execução é distribuído em contêineres, permitindo que qualquer integrante da equipe execute o sistema completo com um único comando.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "as credenciais e chaves são fornecidas por variáveis de ambiente, nunca versionadas"
+  ],
+  "criterios_aceite": [
+    "um integrante sem PHP instalado consegue executar o sistema localmente"
+  ],
+  "prioridade": "media",
+  "origem": "Decisão de arquitetura (T-010)",
+  "status": "proposto"
+}

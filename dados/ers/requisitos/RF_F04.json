@@ -1,0 +1,26 @@
+{
+  "id": "RF_F04",
+  "tipo": "fundamental",
+  "titulo": "Curtir postagem",
+  "descricao": "O usuário registra ou remove sua aprovação sobre uma publicação visível para ele.",
+  "entradas": [
+    "publicação"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "total de curtidas atualizado",
+    "situação da curtida do usuário"
+  ],
+  "regras": [
+    "cada usuário registra no máximo uma curtida por publicação",
+    "curtir novamente não altera o total",
+    "só é possível curtir publicação visível ao usuário"
+  ],
+  "criterios_aceite": [
+    "duas curtidas seguidas do mesmo usuário resultam em uma única curtida",
+    "remover curtida inexistente não gera erro"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

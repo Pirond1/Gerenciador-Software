@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Glossario — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">1.3 definicoes, siglas e abreviacoes</p>
+    <h1>Glossario</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/ers">Voltar a ERS</a>
+</header>
+
+{% if termos %}
+<dl class="glossario">
+  {% for t in termos %}
+  <div class="glossario__linha">
+    <dt>{{ t.termo }}</dt>
+    <dd>
+      {{ t.definicao }}
+      {% if editavel %}
+      <form method="post" action="/ers/termo/excluir" class="glossario__excluir"
+            onsubmit="return confirm('Excluir {{ t.termo }}?')">
+        <input type="hidden" name="termo" value="{{ t.termo }}">
+        <button class="ligacao-perigo" type="submit">excluir</button>
+      </form>
+      {% endif %}
+    </dd>
+  </div>
+  {% endfor %}
+</dl>
+{% else %}
+<p class="vazio vazio--esquerda">Nenhum termo definido.</p>
+{% endif %}
+
+{% if editavel %}
+<form class="formulario formulario--linha" method="post" action="/ers/termo/salvar">
+  <label class="campo">
+    <span class="campo__rotulo">Termo ou sigla</span>
+    <input name="termo" required maxlength="60" placeholder="ERS">
+  </label>
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Definicao</span>
+    <input name="definicao" maxlength="240"
+           placeholder="Especificacao de Requisitos de Software">
+  </label>
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Adicionar termo</button>
+    <span class="campo__ajuda">Termo ja existente e substituido.</span>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

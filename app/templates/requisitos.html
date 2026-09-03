@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Requisitos — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">especificacao</p>
+    <h1>Requisitos</h1>
+  </div>
+  <div class="cabecalho__direita">
+    {% if total %}<span class="selo">{{ total }}</span>{% endif %}
+    {% if editavel %}<a class="botao" href="/requisito/novo">Novo requisito</a>{% endif %}
+  </div>
+</header>
+
+{% if orfaos %}
+<p class="rodape-nota">
+  {{ orfaos }} requisito(s) sem nenhuma tarefa vinculada — ninguem esta construindo.
+</p>
+{% endif %}
+
+{% for secao in secoes %}
+<section class="secao-req">
+  <div class="secao-req__topo">
+    <h2>{{ secao.titulo }}</h2>
+    <span class="medidor">{{ secao.itens|length }}</span>
+    {% if editavel %}
+    <a class="secao-req__add" href="/requisito/novo?tipo={{ secao.tipo }}">+ adicionar</a>
+    {% endif %}
+  </div>
+
+  {% if secao.itens %}
+  <ul class="lista-req">
+    {% for r in secao.itens %}
+    <li>
+      <a class="req" href="/requisito/{{ r.id }}">
+        <span class="req__id">{{ r.id }}</span>
+        <span class="req__titulo">{{ r.titulo }}</span>
+        <span class="prioridade prioridade--{{ r.prioridade.value }}">{{ r.prioridade.value }}</span>
+        <span class="req__vinculos {% if not vinculos[r.id] %}req__vinculos--zero{% endif %}">
+          {{ vinculos[r.id] }} tarefa{{ '' if vinculos[r.id] == 1 else 's' }}
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="vazio vazio--esquerda">Nada especificado ainda.</p>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

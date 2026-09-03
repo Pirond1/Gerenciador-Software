@@ -1173,3 +1173,295 @@ p.campo--assinatura { margin: 0; font-size: 13px; color: var(--tinta-fraca); }
 
 .sync__verificar .botao { padding: 5px 12px; font-size: 12px; }
 .sync__verificar .campo__ajuda { flex: 1; min-width: 180px; }
+
+/* ====================================================================
+   Requisitos
+   ==================================================================== */
+
+.secao-req { margin-top: 30px; }
+
+.secao-req__topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--linha);
+}
+
+.secao-req__topo h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.secao-req__add {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--acento);
+  text-decoration: none;
+}
+
+.secao-req__add:hover { text-decoration: underline; }
+
+.lista-req { margin: 10px 0 0; padding: 0; list-style: none; }
+.lista-req li + li { margin-top: 6px; }
+
+.req {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  color: inherit;
+  text-decoration: none;
+}
+
+.req:hover { border-color: var(--acento); }
+
+.req__id {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--acento);
+  min-width: 62px;
+}
+
+.req__titulo { flex: 1; font-weight: 550; }
+
+.req__vinculos {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--tinta-fraca);
+  white-space: nowrap;
+}
+
+/* Requisito sem tarefa e um buraco na rastreabilidade: fica visivel. */
+.req__vinculos--zero { color: var(--alerta); font-weight: 600; }
+
+/* ---------- Detalhe do requisito ---------- */
+
+.grupo { margin-top: 22px; }
+.grupo:first-child { margin-top: 0; }
+
+.grupo__lista {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.grupo__lista--limpa { padding-left: 0; list-style: none; }
+
+.atalho {
+  display: inline-block;
+  padding: 5px 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.atalho:hover { text-decoration: underline; }
+
+.alerta-fraco {
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--alerta);
+  border-radius: var(--raio);
+  font-size: 13px;
+  color: var(--tinta-fraca);
+}
+
+a.cod { text-decoration: none; }
+a.cod:hover { text-decoration: underline; }
+
+/* ---------- Vinculo no formulario de tarefa ---------- */
+
+.vinculos {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.vinculos legend { padding: 0 6px; }
+
+.vinculos__grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px 16px;
+  margin-bottom: 8px;
+}
+
+.vinculo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.vinculo input { margin: 0; accent-color: var(--acento); }
+
+.vinculo__titulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.campo input:disabled {
+  background: var(--fundo);
+  color: var(--tinta-fraca);
+  cursor: not-allowed;
+}
+
+/* ====================================================================
+   ERS
+   ==================================================================== */
+
+.painel-ers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 24px;
+  padding: 18px 20px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+}
+
+.painel-ers__num { display: flex; flex-direction: column; }
+
+/* ---------- Grade de secoes ---------- */
+
+.secoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.secao {
+  display: block;
+  padding: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--acento);
+  border-radius: var(--raio);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Secao vazia nao se disfarca de pronta. */
+.secao--vazia { border-left-color: var(--linha); }
+
+.secao--link:hover { border-color: var(--acento); }
+
+.secao__numero {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--acento);
+}
+
+.secao--vazia .secao__numero { color: var(--tinta-fraca); }
+
+.secao__titulo { margin: 4px 0 8px; font-size: 15px; font-weight: 600; }
+
+.secao__estado {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--tinta-fraca);
+}
+
+.secao__estado--falta { color: var(--alerta); }
+
+/* ---------- Tabelas ---------- */
+
+.tabela {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.tabela th {
+  padding: 9px 14px;
+  background: var(--fundo);
+  border-bottom: 1px solid var(--linha);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+  text-align: left;
+}
+
+.tabela td { padding: 11px 14px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+.tabela tr:last-child td { border-bottom: none; }
+.tabela__acoes { text-align: right; white-space: nowrap; }
+
+.ligacao-perigo {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--alerta);
+  font-family: var(--sans);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ligacao-perigo:hover { text-decoration: underline; }
+
+/* ---------- Glossario ---------- */
+
+.glossario { margin-top: 22px; }
+
+.glossario__linha {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--linha);
+}
+
+.glossario dt { font-weight: 650; }
+.glossario dd { display: flex; justify-content: space-between; gap: 16px; margin: 0; }
+.glossario__excluir { margin: 0; }
+
+/* ---------- Formulario em linha (adicionar item) ---------- */
+
+.formulario--linha {
+  margin-top: 26px;
+  padding: 18px 20px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+}
+
+.formulario--linha .formulario__acoes {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Secoes em prosa: uma coluna, textarea larga para escrever de verdade. */
+.formulario--prosa { grid-template-columns: 1fr; max-width: 860px; }
+.formulario--prosa textarea { font-family: var(--sans); font-size: 14px; line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .glossario__linha { grid-template-columns: 1fr; gap: 4px; }
+}

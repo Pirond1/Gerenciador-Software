@@ -5,12 +5,21 @@
       "id": "T-014",
       "titulo": "ERS 2.2.2 — Funcoes fundamentais (RF_F)",
       "descricao": "Transacoes de negocio no padrao `RF_F01 – ...`.\n\n- [ ] Publicar postagem (com moderacao previa)\n- [ ] Curtir postagem\n- [ ] Comentar postagem\n- [ ] Solicitar e aceitar amizade",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_F01",
+        "RF_F02",
+        "RF_F03",
+        "RF_F04",
+        "RF_F05",
+        "RF_F06",
+        "RF_F07",
+        "RF_F08"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -20,9 +29,16 @@
       "status": "a_fazer",
       "prioridade": "alta",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_B01",
+        "RF_B03",
+        "RF_F02",
+        "RF_F03",
+        "RF_F04",
+        "RF_F05"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -32,9 +48,12 @@
       "status": "a_fazer",
       "prioridade": "media",
       "entrega": "E1",
-      "requisitos": [],
+      "requisitos": [
+        "RF_B01",
+        "RF_F02"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -44,9 +63,15 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_B01",
+        "RF_B03",
+        "RF_F02",
+        "RF_F04",
+        "RNF06"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -56,21 +81,28 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F01",
+        "RNF03"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-019",
       "titulo": "Implementar usuario e perfil",
-      "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`UsuarioResumo` — embutido em postagens, comentarios e listas:\n```json\n{ \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"avatar_url\": \"https://exemplo.com/a.jpg\" }\n```\n\n### GET /eu — protegida\n\nSem parametros.\n\n**200** (inclui `email`, que o perfil publico nao traz)\n```json\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"email\": \"ana@exemplo.com\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\n             \"criado_em\": \"2026-08-01T10:00:00Z\" } }\n```\n\n### PATCH /eu — protegida\n\n**Envia** apenas os campos que mudam:\n```json\n{ \"nome\": \"Ana P. Silva\", \"avatar_url\": \"https://exemplo.com/b.jpg\" }\n```\n\n**200** com o mesmo objeto de `GET /eu` ja atualizado.\n\n### GET /usuarios/{usuario} — protegida\n\n`{usuario}` e o @, nao o id.\n\n**200**\n```json\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\n             \"total_postagens\": 42,\n             \"amizade\": \"aceita\",\n             \"amizade_id\": 77 } }\n```\n\n`amizade` assume `nenhuma`, `pendente_enviada`, `pendente_recebida`, `aceita`\nou `eu_mesmo`. E o campo que decide o botao da tela sem precisar de outra\nchamada. `amizade_id` vem nulo quando `amizade` e `nenhuma` ou `eu_mesmo`.\n\n**404 `usuario_nao_encontrado`**\n\n### GET /usuarios/{usuario}/postagens — protegida\n\nParametros: `limite` (padrao 20, maximo 50) e `cursor`.\n\n**200** — mesma forma paginada do feed, com objetos `Postagem`.\n\n## Implementacao\n\n- [ ] `email` so aparece em `/eu`, nunca no perfil publico\n- [ ] `amizade` calculado em relacao ao usuario do token\n- [ ] `total_postagens` contado no banco, sem trazer as postagens\n\nAtende o RF_B de gerenciar usuario.",
+      "descricao": "## Convencoes\r\n\r\n- Base `/api/v1` · JSON em requisicao e resposta\r\n- Rotas protegidas exigem `Authorization: Bearer <token>`\r\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\r\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\r\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\r\n\r\n`UsuarioResumo` — embutido em postagens, comentarios e listas:\r\n```json\r\n{ \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\r\n  \"avatar_url\": \"https://exemplo.com/a.jpg\" }\r\n```\r\n\r\n### GET /eu — protegida\r\n\r\nSem parametros.\r\n\r\n**200** (inclui `email`, que o perfil publico nao traz)\r\n```json\r\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\r\n             \"email\": \"ana@exemplo.com\",\r\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\r\n             \"criado_em\": \"2026-08-01T10:00:00Z\" } }\r\n```\r\n\r\n### PATCH /eu — protegida\r\n\r\n**Envia** apenas os campos que mudam:\r\n```json\r\n{ \"nome\": \"Ana P. Silva\", \"avatar_url\": \"https://exemplo.com/b.jpg\" }\r\n```\r\n\r\n**200** com o mesmo objeto de `GET /eu` ja atualizado.\r\n\r\n### GET /usuarios/{usuario} — protegida\r\n\r\n`{usuario}` e o @, nao o id.\r\n\r\n**200**\r\n```json\r\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\r\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\r\n             \"total_postagens\": 42,\r\n             \"amizade\": \"aceita\",\r\n             \"amizade_id\": 77 } }\r\n```\r\n\r\n`amizade` assume `nenhuma`, `pendente_enviada`, `pendente_recebida`, `aceita`\r\nou `eu_mesmo`. E o campo que decide o botao da tela sem precisar de outra\r\nchamada. `amizade_id` vem nulo quando `amizade` e `nenhuma` ou `eu_mesmo`.\r\n\r\n**404 `usuario_nao_encontrado`**\r\n\r\n### GET /usuarios/{usuario}/postagens — protegida\r\n\r\nParametros: `limite` (padrao 20, maximo 50) e `cursor`.\r\n\r\n**200** — mesma forma paginada do feed, com objetos `Postagem`.\r\n\r\n## Implementacao\r\n\r\n- [ ] `email` so aparece em `/eu`, nunca no perfil publico\r\n- [ ] `amizade` calculado em relacao ao usuario do token\r\n- [ ] `total_postagens` contado no banco, sem trazer as postagens\r\n\r\nAtende o RF_B de gerenciar usuario.",
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_B01",
+        "RF_B02",
+        "RF_S02"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -80,9 +112,14 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_B03",
+        "RF_F06",
+        "RF_F07",
+        "RF_S04"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -92,9 +129,13 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F02",
+        "RF_F08",
+        "RNF04"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -104,9 +145,13 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_S01",
+        "RNF04",
+        "RNF06"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -116,9 +161,11 @@
       "status": "backlog",
       "prioridade": "media",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F04"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -128,9 +175,13 @@
       "status": "backlog",
       "prioridade": "media",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_B04",
+        "RF_F05",
+        "RF_S03"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     },
     {
@@ -140,9 +191,13 @@
       "status": "backlog",
       "prioridade": "alta",
       "entrega": null,
-      "requisitos": [],
+      "requisitos": [
+        "RF_F03",
+        "RNF01",
+        "RNF02"
+      ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-03T16:16:27",
       "atualizado_por": "gustavo"
     }
   ]

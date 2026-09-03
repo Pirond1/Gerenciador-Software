@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block titulo %}{{ requisito.id }} — {{ requisito.titulo }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow"><span class="cod">{{ requisito.id }}</span> · {{ requisito.tipo.value }}</p>
+    <h1>{{ requisito.titulo }}</h1>
+  </div>
+  <div class="cabecalho__direita">
+    <a class="botao botao--fantasma" href="/requisitos">Voltar</a>
+    {% if editavel %}<a class="botao" href="/requisito/{{ requisito.id }}/editar">Editar</a>{% endif %}
+  </div>
+</header>
+
+<div class="detalhe">
+  <section class="detalhe__corpo">
+    {% if descricao_html %}<div class="prosa">{{ descricao_html|safe }}</div>{% endif %}
+
+    {% macro bloco(rotulo, itens) %}
+      {% if itens %}
+      <section class="grupo">
+        <p class="campo__rotulo">{{ rotulo }}</p>
+        <ul class="grupo__lista">
+          {% for i in itens %}<li>{{ i }}</li>{% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    {% endmacro %}
+
+    {{ bloco('Itens obrigatorios / filtros', requisito.entradas) }}
+    {{ bloco('Itens opcionais', requisito.opcionais) }}
+    {{ bloco('Itens de saida', requisito.saidas) }}
+    {{ bloco('Regras de validacao', requisito.regras) }}
+    {{ bloco('Criterios de aceite', requisito.criterios_aceite) }}
+
+    <section class="grupo">
+      <p class="campo__rotulo">Tarefas que atendem este requisito</p>
+      {% if tarefas %}
+      <ul class="grupo__lista grupo__lista--limpa">
+        {% for v in tarefas %}
+        <li>
+          <a class="atalho" href="/tarefa/{{ v.tarefa.id }}">
+            <span class="cod">{{ v.tarefa.id }}</span> {{ v.tarefa.titulo }}
+            {% if v.dono %}<span class="tenue">· {{ v.dono.nome }}</span>{% endif %}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="alerta-fraco">
+        Nenhuma tarefa vinculada. Um requisito sem tarefa nao vai ser construido.
+      </p>
+      {% endif %}
+    </section>
+
+    {% if casos %}
+    <section class="grupo">
+      <p class="campo__rotulo">Casos de uso que referenciam</p>
+      <ul class="grupo__lista">
+        {% for c in casos %}<li><span class="cod">{{ c.id }}</span> {{ c.nome }}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </section>
+
+  <aside class="detalhe__lado">
+    <dl class="atributos">
+      <dt>Tipo</dt><dd>{{ requisito.tipo.value }}</dd>
+      <dt>Prioridade</dt>
+      <dd class="prioridade prioridade--{{ requisito.prioridade.value }}">{{ requisito.prioridade.value }}</dd>
+      <dt>Situacao</dt><dd>{{ requisito.status.value }}</dd>
+      <dt>Origem</dt>
+      <dd>{% if requisito.origem %}{{ requisito.origem }}{% else %}<span class="tenue">nao informada</span>{% endif %}</dd>
+    </dl>
+
+    {% if editavel %}
+    <form method="post" action="/requisito/{{ requisito.id }}/excluir"
+          onsubmit="return confirm('Excluir {{ requisito.id }}?')"
+          class="detalhe__assinatura">
+      <button class="botao botao--perigo" type="submit">Excluir requisito</button>
+    </form>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

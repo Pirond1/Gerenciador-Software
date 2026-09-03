@@ -1,0 +1,19 @@
+{
+  "id": "RNF06",
+  "tipo": "nao_funcional",
+  "titulo": "Desempenho do feed",
+  "descricao": "O carregamento de um bloco do feed deve concluir em até 2 segundos em condições normais de uso.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "a ordenação por data é sustentada por índice no banco de dados",
+    "a paginação usa marcador de posição, não deslocamento numérico"
+  ],
+  "criterios_aceite": [
+    "o tempo de resposta do feed permanece estável conforme o volume de publicações cresce"
+  ],
+  "prioridade": "media",
+  "origem": "Contrato da API (T-009)",
+  "status": "proposto"
+}

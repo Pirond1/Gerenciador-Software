@@ -1,0 +1,30 @@
+{
+  "id": "RF_B01",
+  "tipo": "basica",
+  "titulo": "Gerenciar usuário",
+  "descricao": "O usuário poderá cadastrar-se, consultar e alterar seus dados e excluir sua conta.",
+  "entradas": [
+    "nome",
+    "identificador público (@)",
+    "e-mail",
+    "senha"
+  ],
+  "opcionais": [
+    "imagem de avatar"
+  ],
+  "saidas": [],
+  "regras": [
+    "o identificador público e o e-mail são únicos no sistema",
+    "a senha deve ter no mínimo 8 caracteres",
+    "a senha é armazenada apenas como hash",
+    "a exclusão da conta remove as publicações, curtidas e comentários do usuário"
+  ],
+  "criterios_aceite": [
+    "cadastro com identificador já existente é recusado e informa o campo em conflito",
+    "senha com menos de 8 caracteres é recusada",
+    "os dados alterados aparecem imediatamente no perfil"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

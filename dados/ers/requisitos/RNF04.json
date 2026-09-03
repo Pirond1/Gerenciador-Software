@@ -1,0 +1,18 @@
+{
+  "id": "RNF04",
+  "tipo": "nao_funcional",
+  "titulo": "Privacidade do conteúdo",
+  "descricao": "Uma publicação é visível apenas para o autor e para seus amigos aceitos, em qualquer uma das interfaces.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "a verificação de visibilidade ocorre no servidor, não na interface"
+  ],
+  "criterios_aceite": [
+    "requisição direta à API por usuário sem amizade não retorna a publicação"
+  ],
+  "prioridade": "alta",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

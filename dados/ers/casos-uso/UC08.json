@@ -1,0 +1,53 @@
+{
+  "id": "UC08",
+  "nome": "Emitir relatório de conteúdo recusado",
+  "ator_principal": "administrador",
+  "requisitos": [
+    "RF_S05",
+    "RF_F03"
+  ],
+  "pre_condicao": "O administrador está autenticado",
+  "pos_condicao": "O relatório do período é apresentado com os totais por motivo",
+  "fluxo_principal": [
+    {
+      "ator": "O administrador",
+      "acao": "informa o período desejado e, opcionalmente, o motivo"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "consulta o registro de auditoria da moderação"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta as ocorrências e os totais por motivo"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Acesso por usuário comum",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "identifica perfil sem permissão"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "recusa o acesso ao relatório"
+        }
+      ]
+    },
+    {
+      "nome": "Período sem ocorrências",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "não encontra registros no período"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "informa a ausência de ocorrências"
+        }
+      ]
+    }
+  ]
+}

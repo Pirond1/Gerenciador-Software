@@ -1,0 +1,23 @@
+{
+  "id": "RF_S04",
+  "tipo": "saida",
+  "titulo": "Consultar amizades e solicitações",
+  "descricao": "O usuário consulta a lista de suas amizades aceitas e as solicitações recebidas ainda não respondidas.",
+  "entradas": [
+    "nenhum filtro"
+  ],
+  "opcionais": [],
+  "saidas": [
+    "nome e identificador de cada amigo",
+    "solicitações pendentes recebidas"
+  ],
+  "regras": [
+    "solicitações enviadas e ainda não aceitas não aparecem na lista de amigos"
+  ],
+  "criterios_aceite": [
+    "a lista de pendentes contém apenas solicitações recebidas"
+  ],
+  "prioridade": "media",
+  "origem": "Escopo do produto",
+  "status": "aprovado"
+}

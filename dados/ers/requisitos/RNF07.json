@@ -1,0 +1,19 @@
+{
+  "id": "RNF07",
+  "tipo": "nao_funcional",
+  "titulo": "Clareza do retorno da moderação",
+  "descricao": "Quando uma publicação é recusada, a interface informa o motivo e preserva o texto redigido, sem linguagem que atribua culpa ao usuário.",
+  "entradas": [],
+  "opcionais": [],
+  "saidas": [],
+  "regras": [
+    "o texto nunca é descartado em caso de recusa ou falha",
+    "a interface distingue recusa de conteúdo de indisponibilidade do serviço"
+  ],
+  "criterios_aceite": [
+    "após uma recusa, o usuário consegue corrigir e reenviar sem redigitar"
+  ],
+  "prioridade": "media",
+  "origem": "Política de moderação (T-012)",
+  "status": "aprovado"
+}

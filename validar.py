@@ -5,7 +5,7 @@ Uso:
     python validar.py
 
 Sai com codigo 0 se tudo estiver valido, 1 se houver qualquer problema.
-Esse codigo de saida e o que permite usar o mesmo script no CI depois.
+Esse codigo de saida e o que permite usar o mesmo script no CI.
 """
 
 import json
@@ -14,10 +14,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from app.models import BoardMembro, Equipe, Projeto, Stack
-from app.repositorio import Repositorio
-
-repo = Repositorio(Path("."))
+from app.models import BoardMembro, CasoDeUso, Equipe, Projeto, Requisito, Stack
 
 RAIZ = Path(__file__).parent
 DADOS = RAIZ / "dados"
@@ -45,10 +42,6 @@ def carregar(caminho: Path, modelo):
 
 
 def main() -> int:
-    print("Integridade:", repo.verificar_integridade())
-    print("Proximo ID:", repo.proximo_id())
-    print("Boards faltando:", repo.arquivos_do_board_faltando())
-
     problemas = 0
 
     alvos = [
@@ -57,6 +50,9 @@ def main() -> int:
         (DADOS / "stack.json", Stack),
     ]
     alvos += [(p, BoardMembro) for p in sorted((DADOS / "board").glob("*.json"))]
+    # A pasta ers/ pode estar vazia enquanto a especificacao nao comeca.
+    alvos += [(p, Requisito) for p in sorted((DADOS / "ers" / "requisitos").glob("*.json"))]
+    alvos += [(p, CasoDeUso) for p in sorted((DADOS / "ers" / "casos-uso").glob("*.json"))]
 
     for caminho, modelo in alvos:
         relativo = caminho.relative_to(RAIZ)
@@ -64,13 +60,31 @@ def main() -> int:
         if erro:
             print(f"  [ERRO] {relativo}\n{erro}")
             problemas += 1
-        else:
-            extra = ""
-            if isinstance(obj, BoardMembro):
-                extra = f" ({len(obj.tarefas)} tarefa(s))"
-            elif isinstance(obj, Equipe):
-                extra = f" ({len(obj.membros)} membro(s))"
-            print(f"  [ok]   {relativo}{extra}")
+            continue
+
+        extra = ""
+        if isinstance(obj, BoardMembro):
+            extra = f" ({len(obj.tarefas)} tarefa(s))"
+        elif isinstance(obj, Equipe):
+            extra = f" ({len(obj.membros)} membro(s))"
+        elif isinstance(obj, Requisito):
+            extra = f" ({obj.tipo.value})"
+        print(f"  [ok]   {relativo}{extra}")
+
+    # O nome do arquivo precisa bater com o id, como no board: se divergir,
+    # o link entre tarefa e requisito aponta para o lugar errado.
+    for pasta, chave in [("requisitos", "id"), ("casos-uso", "id")]:
+        for caminho in sorted((DADOS / "ers" / pasta).glob("*.json")):
+            try:
+                dados = json.loads(caminho.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                continue  # ja reportado acima
+            if dados.get(chave) != caminho.stem:
+                print(
+                    f"  [ERRO] ers/{pasta}/{caminho.name}: id e "
+                    f"'{dados.get(chave)}', esperado '{caminho.stem}'"
+                )
+                problemas += 1
 
     print()
     if problemas:

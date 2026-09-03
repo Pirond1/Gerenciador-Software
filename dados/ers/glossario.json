@@ -1,0 +1,68 @@
+{
+  "termos": [
+    {
+      "termo": "Amizade",
+      "definicao": "Vínculo recíproco entre dois usuários, efetivado somente após aceite do destinatário, que determina a visibilidade das publicações"
+    },
+    {
+      "termo": "API",
+      "definicao": "Application Programming Interface — conjunto de rotas que expõe as funções do sistema aos clientes web e móvel"
+    },
+    {
+      "termo": "Comentário",
+      "definicao": "Texto associado a uma publicação, escrito por um usuário com acesso a ela"
+    },
+    {
+      "termo": "CRUD",
+      "definicao": "Create, Retrieve, Update e Delete — as quatro operações básicas de manutenção de um cadastro"
+    },
+    {
+      "termo": "Curtida",
+      "definicao": "Marcação de aprovação de um usuário sobre uma publicação, única por par usuário e publicação"
+    },
+    {
+      "termo": "Cursor",
+      "definicao": "Marcador opaco devolvido pela API que indica a posição da última publicação lida, usado para carregar a página seguinte do feed"
+    },
+    {
+      "termo": "ERS",
+      "definicao": "Especificação de Requisitos de Software — este documento"
+    },
+    {
+      "termo": "Feed",
+      "definicao": "Lista das publicações dos amigos do usuário e dele próprio, apresentada em ordem decrescente de data"
+    },
+    {
+      "termo": "Hash",
+      "definicao": "Resultado de uma função criptográfica irreversível, usada para armazenar senhas sem guardar o texto original"
+    },
+    {
+      "termo": "IA",
+      "definicao": "Inteligência Artificial — neste projeto, o serviço externo responsável pela classificação do conteúdo"
+    },
+    {
+      "termo": "Moderação",
+      "definicao": "Análise automática do conteúdo de uma publicação, realizada antes da gravação, que resulta em aprovação ou recusa"
+    },
+    {
+      "termo": "Postagem",
+      "definicao": "Publicação de texto curto criada por um usuário, também referida como publicação"
+    },
+    {
+      "termo": "RF",
+      "definicao": "Requisito Funcional — função que o sistema deve oferecer"
+    },
+    {
+      "termo": "RNF",
+      "definicao": "Requisito Não Funcional — restrição ou característica de qualidade que o sistema deve atender"
+    },
+    {
+      "termo": "Token",
+      "definicao": "Credencial temporária emitida na autenticação e enviada em cada requisição às rotas protegidas"
+    },
+    {
+      "termo": "TPost",
+      "definicao": "Nome do produto de software especificado neste documento"
+    }
+  ]
+}

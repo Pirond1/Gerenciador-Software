@@ -1,0 +1,62 @@
+{
+  "id": "UC03",
+  "nome": "Consultar feed",
+  "ator_principal": "usuario_comum",
+  "requisitos": [
+    "RF_S01",
+    "RNF04",
+    "RNF06"
+  ],
+  "pre_condicao": "O usuário está autenticado",
+  "pos_condicao": "As publicações visíveis ao usuário são apresentadas em ordem decrescente de data",
+  "fluxo_principal": [
+    {
+      "ator": "O usuário",
+      "acao": "acessa a tela inicial"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "seleciona as publicações do usuário e de suas amizades aceitas"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta o primeiro bloco em ordem decrescente de data"
+    },
+    {
+      "ator": "O usuário",
+      "acao": "avança na leitura e solicita o bloco seguinte"
+    },
+    {
+      "ator": "O sistema",
+      "acao": "apresenta o bloco seguinte a partir do marcador de posição"
+    }
+  ],
+  "fluxos_alternativos": [
+    {
+      "nome": "Usuário sem amizades",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "não encontra publicações visíveis"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "orienta o usuário a adicionar amigos para montar o feed"
+        }
+      ]
+    },
+    {
+      "nome": "Fim da lista",
+      "passos": [
+        {
+          "ator": "O sistema",
+          "acao": "identifica que não há mais publicações a apresentar"
+        },
+        {
+          "ator": "O sistema",
+          "acao": "encerra o carregamento e sinaliza o fim da lista"
+        }
+      ]
+    }
+  ]
+}
