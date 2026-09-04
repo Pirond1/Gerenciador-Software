@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block titulo %}Equipe — administracao{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">administracao</p>
+    <h1>Equipe</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/admin">Voltar</a>
+</header>
+
+{% if codigo %}
+<section class="codigo-novo">
+  <p class="campo__rotulo">Codigo gerado para {{ codigo_de }}</p>
+  <p class="codigo-novo__valor">{{ codigo }}</p>
+  <p class="campo__ajuda">
+    Copie agora e envie a pessoa. Ele nao aparece de novo — so o hash foi gravado.
+  </p>
+</section>
+{% endif %}
+
+<table class="tabela">
+  <thead>
+    <tr><th>Pessoa</th><th>Papeis</th><th>Perfil</th><th>Tarefas</th>
+        <th>Acesso</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for m in membros %}
+    <tr>
+      <td>
+        <span class="ponto" style="--cor-dono: {{ m.cor }}"></span>
+        <strong>{{ m.nome }}</strong><br>
+        <span class="cod cod--fraco">{{ m.id }}</span>
+        {% if m.github %}<span class="tenue">· @{{ m.github }}</span>{% endif %}
+      </td>
+      <td>{{ m.papeis|map(attribute='value')|join(', ') or '—' }}</td>
+      <td>{{ m.perfil.value }}</td>
+      <td>{{ contagem.get(m.id, 0) }}</td>
+      <td>
+        {% if m.senha_hash %}definido{% else %}<span class="senha__falta">sem codigo</span>{% endif %}
+      </td>
+      <td class="tabela__acoes">
+        <form method="post" action="/admin/membro/senha">
+          <input type="hidden" name="membro_id" value="{{ m.id }}">
+          <button class="ligacao" type="submit">gerar codigo</button>
+        </form>
+        <form method="post" action="/admin/membro/excluir"
+              onsubmit="return confirm('Excluir {{ m.nome }}?')">
+          <input type="hidden" name="membro_id" value="{{ m.id }}">
+          <button class="ligacao-perigo" type="submit">excluir</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form class="formulario formulario--linha" method="post" action="/admin/membro/salvar">
+  <p class="campo__rotulo campo--largo">Adicionar ou substituir pessoa</p>
+
+  <label class="campo">
+    <span class="campo__rotulo">Nome</span>
+    <input name="nome" required maxlength="60">
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Identificador</span>
+    <input name="novo_id" maxlength="30" placeholder="deixe vazio para gerar do nome">
+    <span class="campo__ajuda">Nao muda depois: e o nome do arquivo do board.</span>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Perfil</span>
+    <select name="perfil">
+      {% for p in perfis %}<option value="{{ p.value }}">{{ p.value }}</option>{% endfor %}
+    </select>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Cor</span>
+    <input type="color" name="cor" value="#3B82F6">
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">GitHub</span>
+    <input name="github" maxlength="40">
+  </label>
+
+  <fieldset class="campo campo--largo vinculos">
+    <legend class="campo__rotulo">Papeis</legend>
+    <div class="vinculos__grade">
+      {% for p in papeis %}
+      <label class="vinculo">
+        <input type="checkbox" name="papeis" value="{{ p.value }}">
+        <span>{{ p.value }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Salvar pessoa</button>
+    <span class="campo__ajuda">Identificador ja existente substitui os dados, preservando o codigo.</span>
+  </div>
+</form>
+{% endblock %}

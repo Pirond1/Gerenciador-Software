@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titulo %}Colunas — administracao{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">administracao</p>
+    <h1>Colunas do board</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/admin">Voltar</a>
+</header>
+
+<p class="entrada__nota">
+  A ordem abaixo e a ordem no board. O identificador nao muda depois de criado:
+  e para onde o campo de situacao de cada tarefa aponta.
+</p>
+
+<table class="tabela">
+  <thead>
+    <tr><th>Ordem</th><th>Coluna</th><th>Limite WIP</th><th>Tarefas</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for c in colunas %}
+    <tr>
+      <td class="tabela__acoes">
+        <form method="post" action="/admin/coluna/mover">
+          <input type="hidden" name="coluna_id" value="{{ c.id }}">
+          <input type="hidden" name="direcao" value="esquerda">
+          <button class="ligacao" type="submit" {% if loop.first %}disabled{% endif %}>&#8592;</button>
+        </form>
+        <form method="post" action="/admin/coluna/mover">
+          <input type="hidden" name="coluna_id" value="{{ c.id }}">
+          <input type="hidden" name="direcao" value="direita">
+          <button class="ligacao" type="submit" {% if loop.last %}disabled{% endif %}>&#8594;</button>
+        </form>
+      </td>
+      <td><strong>{{ c.nome }}</strong><br><span class="cod cod--fraco">{{ c.id }}</span></td>
+      <td>{{ c.wip_limite or '—' }}</td>
+      <td>{{ uso.get(c.id, 0) }}</td>
+      <td class="tabela__acoes">
+        <form method="post" action="/admin/coluna/excluir"
+              onsubmit="return confirm('Excluir a coluna {{ c.nome }}?')">
+          <input type="hidden" name="coluna_id" value="{{ c.id }}">
+          <button class="ligacao-perigo" type="submit">excluir</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form class="formulario formulario--linha" method="post" action="/admin/coluna/salvar">
+  <p class="campo__rotulo campo--largo">Adicionar ou renomear coluna</p>
+
+  <label class="campo">
+    <span class="campo__rotulo">Identificador</span>
+    <input name="coluna_id" maxlength="30" placeholder="vazio para criar nova">
+    <span class="campo__ajuda">Informe um existente para renomear.</span>
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Nome exibido</span>
+    <input name="nome" required maxlength="40" placeholder="Em revisao">
+  </label>
+
+  <label class="campo">
+    <span class="campo__rotulo">Limite de WIP</span>
+    <input name="wip_limite" maxlength="3" placeholder="opcional">
+    <span class="campo__ajuda">Avisa quando passa; nao bloqueia.</span>
+  </label>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Salvar coluna</button>
+  </div>
+</form>
+{% endblock %}

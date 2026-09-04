@@ -18,6 +18,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+import threading
+
 from pydantic import BaseModel, ValidationError
 
 from app.models import (
@@ -41,6 +43,7 @@ class Repositorio:
         self.requisitos_dir = self.dados / "ers" / "requisitos"
         self.casos_dir = self.dados / "ers" / "casos-uso"
         self.ers_dir = self.dados / "ers"
+        self._trava = threading.RLock()
 
     # -----------------------------------------------------------------
     # Primitivas de disco -- o unico ponto do sistema que toca arquivo
@@ -138,8 +141,9 @@ class Repositorio:
         o dono do arquivo esta editando. E o que faz o merge do Git passar
         limpo quando eu crio tarefa e ele mexe no board ao mesmo tempo.
         """
-        board.tarefas.sort(key=lambda t: t.numero)
-        self._gravar(self.board_dir / f"{chave}.json", board)
+        with self._trava:
+            board.tarefas.sort(key=lambda t: t.numero)
+            self._gravar(self.board_dir / f"{chave}.json", board)
 
     def proximo_id(self) -> str:
         """Maior id existente + 1, varrendo todos os arquivos.
@@ -157,41 +161,44 @@ class Repositorio:
         responsavel: Optional[str] = None,
         **campos,
     ) -> Tarefa:
-        agora = datetime.now().replace(microsecond=0)
-        chave = responsavel or NAO_ATRIBUIDAS
-        board = self.board(chave)
+        with self._trava:
+            agora = datetime.now().replace(microsecond=0)
+            chave = responsavel or NAO_ATRIBUIDAS
+            board = self.board(chave)
 
-        projeto = self.projeto()
-        tarefa = Tarefa(
-            id=self.proximo_id(),
-            titulo=titulo,
-            status=campos.pop("status", projeto.colunas[0].id),
-            criado_em=agora,
-            atualizado_em=agora,
-            atualizado_por=por,
-            **campos,
-        )
-        board.tarefas.append(tarefa)
-        self.salvar_board(chave, board)
-        return tarefa
+            projeto = self.projeto()
+            tarefa = Tarefa(
+                id=self.proximo_id(),
+                titulo=titulo,
+                status=campos.pop("status", projeto.colunas[0].id),
+                criado_em=agora,
+                atualizado_em=agora,
+                atualizado_por=por,
+                **campos,
+            )
+            board.tarefas.append(tarefa)
+            self.salvar_board(chave, board)
+            return tarefa
 
     def atualizar_tarefa(self, tarefa_id: str, por: str, **campos) -> Tarefa:
-        chave, board, i = self._localizar(tarefa_id)
-        tarefa = board.tarefas[i]
+        with self._trava:
+            chave, board, i = self._localizar(tarefa_id)
+            tarefa = board.tarefas[i]
 
-        for nome, valor in campos.items():
-            setattr(tarefa, nome, valor)  # validate_assignment barra valor invalido
-        tarefa.atualizado_em = datetime.now().replace(microsecond=0)
-        tarefa.atualizado_por = por
+            for nome, valor in campos.items():
+                setattr(tarefa, nome, valor)  # validate_assignment barra valor invalido
+            tarefa.atualizado_em = datetime.now().replace(microsecond=0)
+            tarefa.atualizado_por = por
 
-        self.salvar_board(chave, board)
-        return tarefa
+            self.salvar_board(chave, board)
+            return tarefa
 
     def mover_tarefa(self, tarefa_id: str, novo_status: str, por: str) -> Tarefa:
         """Arrastar cartao entre colunas: a operacao mais frequente do sistema."""
-        if novo_status not in self.projeto().ids_colunas:
-            raise ErroRepositorio(f"coluna inexistente: {novo_status}")
-        return self.atualizar_tarefa(tarefa_id, por=por, status=novo_status)
+        with self._trava:
+            if novo_status not in self.projeto().ids_colunas:
+                raise ErroRepositorio(f"coluna inexistente: {novo_status}")
+            return self.atualizar_tarefa(tarefa_id, por=por, status=novo_status)
 
     def realocar_tarefa(self, tarefa_id: str, novo_dono: Optional[str], por: str) -> Tarefa:
         """Unica operacao que toca dois arquivos.
@@ -200,39 +207,52 @@ class Repositorio:
         tarefa fica duplicada -- visivel e corrigivel. Na ordem inversa, ela
         sumiria. Entre os dois modos de falhar, duplicar e o menos ruim.
         """
-        origem, board_origem, i = self._localizar(tarefa_id)
-        destino = novo_dono or NAO_ATRIBUIDAS
-        if origem == destino:
-            return board_origem.tarefas[i]
+        with self._trava:
+            origem, board_origem, i = self._localizar(tarefa_id)
+            destino = novo_dono or NAO_ATRIBUIDAS
+            if origem == destino:
+                return board_origem.tarefas[i]
 
-        board_destino = self.board(destino)
-        tarefa = board_origem.tarefas.pop(i)
-        tarefa.atualizado_em = datetime.now().replace(microsecond=0)
-        tarefa.atualizado_por = por
-        board_destino.tarefas.append(tarefa)
+            board_destino = self.board(destino)
+            tarefa = board_origem.tarefas.pop(i)
+            tarefa.atualizado_em = datetime.now().replace(microsecond=0)
+            tarefa.atualizado_por = por
+            board_destino.tarefas.append(tarefa)
 
-        self.salvar_board(destino, board_destino)
-        try:
-            self.salvar_board(origem, board_origem)
-        except ErroRepositorio as e:
-            raise ErroRepositorio(
-                f"tarefa {tarefa_id} copiada para {destino} mas nao removida de "
-                f"{origem}; remova manualmente. Causa: {e}"
-            ) from e
-        return tarefa
+            self.salvar_board(destino, board_destino)
+            try:
+                self.salvar_board(origem, board_origem)
+            except ErroRepositorio as e:
+                raise ErroRepositorio(
+                    f"tarefa {tarefa_id} copiada para {destino} mas nao removida de "
+                    f"{origem}; remova manualmente. Causa: {e}"
+                ) from e
+            return tarefa
 
     def excluir_tarefa(self, tarefa_id: str) -> Tarefa:
-        chave, board, i = self._localizar(tarefa_id)
-        tarefa = board.tarefas.pop(i)
-        self.salvar_board(chave, board)
-        return tarefa
+        with self._trava:
+            chave, board, i = self._localizar(tarefa_id)
+            tarefa = board.tarefas.pop(i)
+            self.salvar_board(chave, board)
+            return tarefa
 
     def salvar_projeto(self, projeto) -> None:
-        self._gravar(self.dados / "projeto.json", projeto)
+        with self._trava:
+            self._gravar(self.dados / "projeto.json", projeto)
 
     def proximo_id_entrega(self) -> str:
         numeros = [int(e.id[1:]) for e in self.projeto().entregas]
         return f"E{max(numeros) + 1 if numeros else 1}"
+
+    def salvar_equipe(self, equipe) -> None:
+        """Usado pelas telas de administracao."""
+        with self._trava:
+            self._gravar(self.dados / "equipe.json", equipe)
+ 
+    def salvar_stack(self, stack) -> None:
+        with self._trava:
+            self._gravar(self.dados / "stack.json", stack)
+
 
     # -----------------------------------------------------------------
     # ERS: requisitos e casos de uso
@@ -257,14 +277,16 @@ class Repositorio:
         return self._ler(self.requisitos_dir / f"{requisito_id}.json", Requisito)
  
     def salvar_requisito(self, requisito: Requisito) -> None:
-        self.requisitos_dir.mkdir(parents=True, exist_ok=True)
-        self._gravar(self.requisitos_dir / f"{requisito.id}.json", requisito)
+        with self._trava:
+            self.requisitos_dir.mkdir(parents=True, exist_ok=True)
+            self._gravar(self.requisitos_dir / f"{requisito.id}.json", requisito)
  
     def excluir_requisito(self, requisito_id: str) -> None:
-        caminho = self.requisitos_dir / f"{requisito_id}.json"
-        if not caminho.exists():
-            raise ErroRepositorio(f"requisito {requisito_id} nao encontrado")
-        caminho.unlink()
+        with self._trava:
+            caminho = self.requisitos_dir / f"{requisito_id}.json"
+            if not caminho.exists():
+                raise ErroRepositorio(f"requisito {requisito_id} nao encontrado")
+            caminho.unlink()
  
     def proximo_id_requisito(self, tipo: TipoRequisito) -> str:
         """Numeracao independente por tipo: RF_B01, RF_B02, RF_F01..."""
@@ -286,14 +308,16 @@ class Repositorio:
         return self._ler(self.casos_dir / f"{caso_id}.json", CasoDeUso)
  
     def salvar_caso_de_uso(self, caso: CasoDeUso) -> None:
-        self.casos_dir.mkdir(parents=True, exist_ok=True)
-        self._gravar(self.casos_dir / f"{caso.id}.json", caso)
+        with self._trava:
+            self.casos_dir.mkdir(parents=True, exist_ok=True)
+            self._gravar(self.casos_dir / f"{caso.id}.json", caso)
  
     def excluir_caso_de_uso(self, caso_id: str) -> None:
-        caminho = self.casos_dir / f"{caso_id}.json"
-        if not caminho.exists():
-            raise ErroRepositorio(f"caso de uso {caso_id} nao encontrado")
-        caminho.unlink()
+        with self._trava:
+            caminho = self.casos_dir / f"{caso_id}.json"
+            if not caminho.exists():
+                raise ErroRepositorio(f"caso de uso {caso_id} nao encontrado")
+            caminho.unlink()
  
     def proximo_id_caso(self) -> str:
         numeros = [c.numero for c in self.casos_de_uso()]
@@ -417,23 +441,26 @@ class Repositorio:
         return self._ler_ou_padrao(self.ers_dir / "documento.json", Documento)
  
     def salvar_documento(self, documento: Documento) -> None:
-        self.ers_dir.mkdir(parents=True, exist_ok=True)
-        self._gravar(self.ers_dir / "documento.json", documento)
+        with self._trava:
+            self.ers_dir.mkdir(parents=True, exist_ok=True)
+            self._gravar(self.ers_dir / "documento.json", documento)
  
     def atores(self) -> Atores:
         return self._ler_ou_padrao(self.ers_dir / "atores.json", Atores)
  
     def salvar_atores(self, atores: Atores) -> None:
-        self.ers_dir.mkdir(parents=True, exist_ok=True)
-        atores.atores.sort(key=lambda a: a.nome.lower())
-        self._gravar(self.ers_dir / "atores.json", atores)
+        with self._trava:
+            self.ers_dir.mkdir(parents=True, exist_ok=True)
+            atores.atores.sort(key=lambda a: a.nome.lower())
+            self._gravar(self.ers_dir / "atores.json", atores)
  
     def glossario(self) -> Glossario:
         return self._ler_ou_padrao(self.ers_dir / "glossario.json", Glossario)
  
     def salvar_glossario(self, glossario: Glossario) -> None:
-        self.ers_dir.mkdir(parents=True, exist_ok=True)
-        # Ordem alfabetica no arquivo: e como o glossario e lido no
-        # documento, e mantem o diff estavel a cada insercao.
-        glossario.termos.sort(key=lambda t: t.termo.lower())
-        self._gravar(self.ers_dir / "glossario.json", glossario)
+        with self._trava:
+            self.ers_dir.mkdir(parents=True, exist_ok=True)
+            # Ordem alfabetica no arquivo: e como o glossario e lido no
+            # documento, e mantem o diff estavel a cada insercao.
+            glossario.termos.sort(key=lambda t: t.termo.lower())
+            self._gravar(self.ers_dir / "glossario.json", glossario)

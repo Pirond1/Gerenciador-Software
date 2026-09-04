@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block titulo %}Stack — administracao{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">administracao</p>
+    <h1>Stack de tecnologia</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/admin">Voltar</a>
+</header>
+
+<form class="formulario formulario--linha" method="post" action="/admin/stack/produto">
+  <p class="campo__rotulo campo--largo">Produto</p>
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Nome</span>
+    <input name="nome" required maxlength="60" value="{{ stack.produto.nome }}">
+  </label>
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Descricao</span>
+    <textarea name="descricao" rows="3">{{ stack.produto.descricao }}</textarea>
+  </label>
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Salvar produto</button>
+  </div>
+</form>
+
+<table class="tabela">
+  <thead><tr><th>Camada</th><th>Tecnologia</th><th>Responsavel</th><th>Justificativa</th><th></th></tr></thead>
+  <tbody>
+    {% for i in stack.itens %}
+    <tr>
+      <td><strong>{{ i.camada }}</strong></td>
+      <td>{{ i.tecnologia }}</td>
+      <td>{{ i.responsavel or '—' }}</td>
+      <td>
+        {% if i.justificativa %}{{ i.justificativa }}
+        {% else %}<span class="senha__falta">sem justificativa</span>{% endif %}
+      </td>
+      <td class="tabela__acoes">
+        <form method="post" action="/admin/stack/excluir"
+              onsubmit="return confirm('Excluir a camada {{ i.camada }}?')">
+          <input type="hidden" name="camada" value="{{ i.camada }}">
+          <button class="ligacao-perigo" type="submit">excluir</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form class="formulario formulario--linha" method="post" action="/admin/stack/item">
+  <p class="campo__rotulo campo--largo">Adicionar ou substituir camada</p>
+
+  <label class="campo">
+    <span class="campo__rotulo">Camada</span>
+    <input name="camada" required maxlength="40" placeholder="Backend">
+    <span class="campo__ajuda">Camada existente e substituida.</span>
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Tecnologia</span>
+    <input name="tecnologia" required maxlength="60" placeholder="PHP">
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Responsavel</span>
+    <select name="responsavel">
+      <option value="">Ninguem</option>
+      {% for m in membros %}<option value="{{ m.id }}">{{ m.nome }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Justificativa</span>
+    <textarea name="justificativa" rows="2"
+              placeholder="Por que esta escolha, e nao outra"></textarea>
+  </label>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Salvar camada</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,20 @@
+services:
+  gerenciador:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      EM_PRODUCAO: "1"
+      SEGREDO_SESSAO: ${SEGREDO_SESSAO}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      BACKUP_MINUTOS: ${BACKUP_MINUTOS:-30}
+      GIT_AUTOR: ${GIT_AUTOR:-Gerenciador}
+      GIT_EMAIL: ${GIT_EMAIL:-gerenciador@local}
+    volumes:
+      # Os dados vivem FORA da imagem: reconstruir ou atualizar o
+      # contêiner não pode apagar o board.
+      - ./dados:/app/dados
+      # O .git precisa vir junto, senão o backup automático não tem
+      # repositório para commitar.
+      - ./.git:/app/.git

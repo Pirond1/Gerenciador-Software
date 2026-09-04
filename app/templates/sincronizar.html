@@ -64,10 +64,18 @@
   </section>
 
   <section class="sync__acoes">
-    <form method="post" action="/sincronizar/baixar">
-      <button class="botao botao--fantasma" type="submit">Baixar do GitHub</button>
-      <p class="campo__ajuda">Traz o que os outros enviaram. Se o historico tiver
-        divergido, recusa e pede resolucao manual — nunca gera merge automatico.</p>
+    <form method="post" action="/sincronizar/backup" class="sync__verificar">
+      <button class="botao botao--fantasma" type="submit">Fazer backup agora</button>
+        <span class="campo__ajuda">
+          {% if backup_minutos %}
+            Automatico a cada {{ backup_minutos }} min.
+          {% else %}
+            Backup automatico desligado (BACKUP_MINUTOS=0).
+          {% endif %}
+          {% if backup.ultimo %}
+            Ultimo: {{ backup.ultimo.strftime('%d/%m %H:%M') }} — {{ backup.ultima_mensagem }}.
+          {% endif %}
+        </span>
     </form>
 
     <form method="post" action="/sincronizar/enviar" class="sync__enviar">

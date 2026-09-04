@@ -10,23 +10,20 @@
 </header>
 
 <p class="entrada__nota">
-  A escolha define a visao do board e assina as alteracoes que voce fizer.
-  Nao ha senha: quem tem o repositorio ja tem todos os dados.
+  Escolha seu nome para continuar. A escolha define a visao do board e assina
+  as alteracoes que voce fizer.
 </p>
 
 <div class="entrada">
   {% for m in membros %}
-  <form method="post" action="/entrar">
-    <input type="hidden" name="membro" value="{{ m.id }}">
-    <button class="pessoa" type="submit" style="--cor-dono: {{ m.cor }}">
-      <span class="pessoa__inicial">{{ m.nome[0]|upper }}</span>
-      <span class="pessoa__nome">{{ m.nome }}</span>
-      <span class="pessoa__papeis">
-        {% if m.perfil.value == 'professor' %}docente
-        {% else %}{{ m.papeis|map(attribute='value')|join(' · ') }}{% endif %}
-      </span>
-    </button>
-  </form>
+  <a class="pessoa" href="/entrar/{{ m.id }}" style="--cor-dono: {{ m.cor }}">
+    <span class="pessoa__inicial">{{ m.nome[0]|upper }}</span>
+    <span class="pessoa__nome">{{ m.nome }}</span>
+    <span class="pessoa__papeis">
+      {% if m.perfil.value == 'professor' %}docente
+      {% else %}{{ m.papeis|map(attribute='value')|join(' · ') }}{% endif %}
+    </span>
+  </a>
   {% endfor %}
 </div>
 {% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block titulo %}Revisoes — administracao{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">administracao</p>
+    <h1>Historico de revisoes da ERS</h1>
+  </div>
+  <a class="botao botao--fantasma" href="/admin">Voltar</a>
+</header>
+
+{% if revisoes %}
+<table class="tabela">
+  <thead><tr><th>Versao</th><th>Data</th><th>Responsavel</th><th>Alteracoes</th><th></th></tr></thead>
+  <tbody>
+    {% for r in revisoes %}
+    <tr>
+      <td class="cod">{{ r.versao }}</td>
+      <td>{{ r.data.strftime('%d/%m/%Y') }}</td>
+      <td>{{ r.autor }}</td>
+      <td>{{ r.descricao }}</td>
+      <td class="tabela__acoes">
+        <form method="post" action="/admin/revisao/excluir"
+              onsubmit="return confirm('Excluir a versao {{ r.versao }}?')">
+          <input type="hidden" name="versao" value="{{ r.versao }}">
+          <button class="ligacao-perigo" type="submit">excluir</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vazio vazio--esquerda">Nenhuma revisao registrada.</p>
+{% endif %}
+
+<form class="formulario formulario--linha" method="post" action="/admin/revisao/salvar">
+  <p class="campo__rotulo campo--largo">Registrar revisao</p>
+
+  <label class="campo">
+    <span class="campo__rotulo">Versao</span>
+    <input name="versao" required maxlength="10" placeholder="1.1">
+    <span class="campo__ajuda">Versao existente e substituida.</span>
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Data</span>
+    <input type="date" name="data" required value="{{ hoje }}">
+  </label>
+  <label class="campo">
+    <span class="campo__rotulo">Responsavel</span>
+    <input name="autor" maxlength="40" placeholder="deixe vazio para usar seu nome">
+  </label>
+  <label class="campo campo--largo">
+    <span class="campo__rotulo">Alteracoes</span>
+    <input name="descricao" maxlength="200" placeholder="O que mudou nesta versao">
+  </label>
+
+  <div class="formulario__acoes">
+    <button class="botao" type="submit">Registrar</button>
+  </div>
+</form>
+{% endblock %}

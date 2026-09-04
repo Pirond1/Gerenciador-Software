@@ -15,6 +15,11 @@ import re
 from datetime import date
 from pathlib import Path
 from typing import Optional
+from datetime import date
+from app.models import (Coluna, ItemStack, Membro, Papel, Perfil,
+                        Produto, Revisao, Stack,
+                        CasoDeUso, Entrega, Membro, Perfil, Requisito, TipoRequisito, PREFIXO_REQUISITO,
+                        Ator, Atores, Documento, Glossario, Revisao, Termo)
 
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
@@ -22,25 +27,29 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from urllib.parse import quote
-from app import exportar
+from app import exportar, backup
+import os
 
 from pydantic import BaseModel
 
 import markdown as md
 
-from app import gitinfo
-from app.models import CasoDeUso, Entrega, Membro, Perfil, Requisito, TipoRequisito, PREFIXO_REQUISITO, Ator, Atores, Documento, Glossario, Revisao, Termo
+from app import gitinfo, seguranca
 from app.repositorio import NAO_ATRIBUIDAS, ErroRepositorio, Repositorio
 import unicodedata
 
 APP_DIR = Path(__file__).resolve().parent
-RAIZ = APP_DIR.parent
+# Em producao os dados vivem num volume separado do codigo: a imagem
+# e substituida a cada deploy, o volume nao. Em desenvolvimento,
+# continua sendo a raiz do projeto.
+RAIZ = Path(os.environ.get("RAIZ_DADOS") or APP_DIR.parent)
 DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 app = FastAPI(title="Gerenciador de Software")
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
 repo = Repositorio(RAIZ)
+backup.iniciar(RAIZ)
 
 # Disponivel em qualquer template sem precisar passar rota por rota.
 templates.env.globals["git_estado"] = lambda: gitinfo.estado(RAIZ)
@@ -87,6 +96,7 @@ SEM_DONO = "#9AA1AC"
 ORDEM_PRIORIDADE = {"alta": 0, "media": 1, "baixa": 2}
 COOKIE = "perfil"
 UM_ANO = 60 * 60 * 24 * 365
+SOB_HTTPS = os.environ.get("EM_PRODUCAO") == "1"
 
 
 # ---------------------------------------------------------------------------
@@ -95,10 +105,14 @@ UM_ANO = 60 * 60 * 24 * 365
 
 
 def atual(request: Request) -> Optional[Membro]:
-    """Membro escolhido na tela de entrada, ou None."""
-    membro_id = request.cookies.get(COOKIE)
+    """Membro da sessao, ou None.
+ 
+    O cookie e assinado: antes bastava edita-lo no navegador para virar
+    outra pessoa. Num servidor publico isso anularia a senha.
+    """
+    assinado = request.cookies.get(COOKIE)
+    membro_id = seguranca.conferir_assinatura(assinado)
     return repo.equipe().por_id(membro_id) if membro_id else None
-
 
 def pode_editar(membro: Optional[Membro]) -> bool:
     return membro is not None and membro.perfil != Perfil.PROFESSOR
@@ -111,8 +125,8 @@ def _ou_nulo(valor: Optional[str]) -> Optional[str]:
 
 def _para_entrada() -> RedirectResponse:
     return RedirectResponse("/entrar", status_code=303)
-
-
+ 
+ 
 @app.get("/entrar")
 def form_entrar(request: Request):
     return templates.TemplateResponse(
@@ -120,15 +134,53 @@ def form_entrar(request: Request):
         name="entrar.html",
         context={"projeto": repo.projeto(), "membros": repo.equipe().membros},
     )
-
-
-@app.post("/entrar")
-def entrar(membro: str = Form(...)):
+ 
+ 
+@app.get("/entrar/{membro_id}")
+def form_senha(request: Request, membro_id: str, erro: str = ""):
+    membro = repo.equipe().por_id(membro_id)
+    if membro is None:
+        return _para_entrada()
+ 
+    # Quem ainda nao tem senha definida entra direto, como antes.
+    if not membro.senha_hash:
+        resposta = RedirectResponse("/", status_code=303)
+        _gravar_sessao(resposta, membro.id)
+        return resposta
+ 
+    return templates.TemplateResponse(
+        request=request,
+        name="entrar_senha.html",
+        context={"projeto": repo.projeto(), "membro": membro, "erro": erro},
+    )
+ 
+ 
+@app.post("/entrar/{membro_id}")
+def entrar(membro_id: str, senha: str = Form("")):
+    membro = repo.equipe().por_id(membro_id)
+    if membro is None:
+        return _para_entrada()
+ 
+    if membro.senha_hash and not seguranca.conferir_senha(senha, membro.senha_hash):
+        # Mensagem unica, sem dizer se o problema foi a pessoa ou a senha.
+        return RedirectResponse(f"/entrar/{membro_id}?erro=1", status_code=303)
+ 
     resposta = RedirectResponse("/", status_code=303)
-    resposta.set_cookie(COOKIE, membro, max_age=UM_ANO, samesite="lax")
+    _gravar_sessao(resposta, membro.id)
     return resposta
-
-
+ 
+ 
+def _gravar_sessao(resposta, membro_id: str) -> None:
+    resposta.set_cookie(
+        COOKIE,
+        seguranca.assinar(membro_id),
+        max_age=UM_ANO,
+        samesite="lax",
+        httponly=True,   # o cookie nao precisa ser lido por JavaScript
+        secure=SOB_HTTPS,
+    )
+ 
+ 
 @app.get("/sair")
 def sair():
     resposta = _para_entrada()
@@ -694,6 +746,8 @@ def _tela_git(request: Request, eu: Membro, resultado=None, status=200):
             "resultado": resultado,
             "sugestao": gitinfo.mensagem_padrao(eu.nome),
             "problemas": repo.verificar_integridade(),
+            "backup": backup.estado(),
+            "backup_minutos": backup.INTERVALO,
         },
         status_code=status,
     )
@@ -1180,3 +1234,376 @@ def exportar_ers(request: Request):
                 f"filename*=UTF-8''{quote(nome)}"
         },
     )
+
+def pode_administrar(membro: Optional[Membro]) -> bool:
+    """Administracao e do admin. Estes arquivos sao unicos e compartilhados:
+    quanto menos gente escreve neles, menos conflito e menos acidente."""
+    return membro is not None and membro.perfil == Perfil.ADMIN
+ 
+ 
+def _so_admin(request: Request):
+    """Devolve o membro se ele pode administrar, ou um redirect."""
+    eu = atual(request)
+    if eu is None:
+        return None, _para_entrada()
+    if not pode_administrar(eu):
+        return None, RedirectResponse("/", status_code=303)
+    return eu, None
+ 
+ 
+@app.get("/admin")
+def ver_admin(request: Request):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    projeto = repo.projeto()
+    return templates.TemplateResponse(
+        request=request, name="admin.html",
+        context={
+            "projeto": projeto, "eu": eu,
+            "membros": len(repo.equipe().membros),
+            "colunas": len(projeto.colunas),
+            "itens_stack": len(repo.stack().itens),
+            "revisoes": len(repo.documento().revisoes),
+            "sem_senha": [m.nome for m in repo.equipe().membros if not m.senha_hash],
+        })
+ 
+ 
+# ---------------------------------------------------------------------------
+# Equipe
+# ---------------------------------------------------------------------------
+ 
+ 
+@app.get("/admin/equipe")
+def admin_equipe(request: Request, codigo: str = "", de: str = ""):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    contagem = {}
+    for chave, _ in repo.todas_tarefas():
+        contagem[chave] = contagem.get(chave, 0) + 1
+ 
+    return templates.TemplateResponse(
+        request=request, name="admin_equipe.html",
+        context={
+            "projeto": repo.projeto(), "eu": eu,
+            "membros": repo.equipe().membros,
+            "papeis": list(Papel), "perfis": list(Perfil),
+            "contagem": contagem,
+            # Codigo recem-gerado, mostrado uma unica vez nesta resposta.
+            "codigo": codigo, "codigo_de": de,
+        })
+ 
+ 
+@app.post("/admin/membro/salvar")
+def salvar_membro(
+    request: Request,
+    membro_id: str = Form(""),
+    nome: str = Form(...),
+    novo_id: str = Form(""),
+    perfil: str = Form("membro"),
+    cor: str = Form("#3B82F6"),
+    github: str = Form(""),
+    papeis: list[str] = Form([]),
+):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    equipe = repo.equipe()
+    # O id e a chave estrangeira do sistema e o nome do arquivo do board:
+    # so pode ser definido na criacao.
+    identificador = membro_id or _slug(novo_id or nome)
+ 
+    novo = Membro(
+        id=identificador, nome=nome, papeis=papeis or [],
+        perfil=perfil, cor=cor, github=_ou_nulo(github),
+        senha_hash=next((m.senha_hash for m in equipe.membros
+                         if m.id == identificador), ""),
+    )
+    equipe.membros = [m for m in equipe.membros if m.id != identificador] + [novo]
+    repo.salvar_equipe(equipe)
+ 
+    # Membro sem arquivo de board nao aparece no quadro e quebra a
+    # verificacao de integridade.
+    if novo.perfil != Perfil.PROFESSOR:
+        caminho = repo.board_dir / f"{novo.id}.json"
+        if not caminho.exists():
+            repo.salvar_board(novo.id, BoardMembro(responsavel=novo.id, tarefas=[]))
+ 
+    return RedirectResponse("/admin/equipe", status_code=303)
+ 
+ 
+@app.post("/admin/membro/excluir")
+def excluir_membro(request: Request, membro_id: str = Form(...)):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    if membro_id == eu.id:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": "Voce nao pode excluir a si mesmo."},
+            status_code=409)
+ 
+    tarefas = [t.id for chave, t in repo.todas_tarefas() if chave == membro_id]
+    if tarefas:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem":
+                     f"'{membro_id}' ainda tem {len(tarefas)} tarefa(s) "
+                     f"({', '.join(tarefas[:8])}). Realoque-as antes de excluir."},
+            status_code=409)
+ 
+    equipe = repo.equipe()
+    equipe.membros = [m for m in equipe.membros if m.id != membro_id]
+    repo.salvar_equipe(equipe)
+ 
+    caminho = repo.board_dir / f"{membro_id}.json"
+    if caminho.exists():
+        caminho.unlink()
+ 
+    return RedirectResponse("/admin/equipe", status_code=303)
+ 
+ 
+@app.post("/admin/membro/senha")
+def definir_senha(request: Request, membro_id: str = Form(...),
+                  remover: str = Form("")):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    equipe = repo.equipe()
+    membro = equipe.por_id(membro_id)
+    if membro is None:
+        return RedirectResponse("/admin/equipe", status_code=303)
+ 
+    if remover:
+        membro.senha_hash = ""
+        repo.salvar_equipe(equipe)
+        return RedirectResponse("/admin/equipe", status_code=303)
+ 
+    codigo = seguranca.gerar_codigo()
+    membro.senha_hash = seguranca.hash_senha(codigo)
+    repo.salvar_equipe(equipe)
+    # O codigo viaja na URL uma unica vez, para ser copiado. Nao fica
+    # guardado em lugar nenhum: so o hash foi gravado.
+    return RedirectResponse(
+        f"/admin/equipe?codigo={codigo}&de={membro.id}", status_code=303)
+ 
+ 
+# ---------------------------------------------------------------------------
+# Colunas do board
+# ---------------------------------------------------------------------------
+ 
+ 
+@app.get("/admin/colunas")
+def admin_colunas(request: Request):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    projeto = repo.projeto()
+    uso = {c.id: 0 for c in projeto.colunas}
+    for _, tarefa in repo.todas_tarefas():
+        if tarefa.status in uso:
+            uso[tarefa.status] += 1
+ 
+    return templates.TemplateResponse(
+        request=request, name="admin_colunas.html",
+        context={"projeto": projeto, "eu": eu,
+                 "colunas": projeto.colunas, "uso": uso})
+ 
+ 
+@app.post("/admin/coluna/salvar")
+def salvar_coluna(request: Request, coluna_id: str = Form(""),
+                  nome: str = Form(...), wip_limite: str = Form("")):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    projeto = repo.projeto()
+    # O id da coluna e para onde tarefa.status aponta: renomear quebraria
+    # todas as tarefas nela. Nome muda a vontade; id, nunca.
+    identificador = coluna_id or _slug(nome)
+    limite = int(wip_limite) if wip_limite.strip().isdigit() else None
+ 
+    nova = Coluna(id=identificador, nome=nome, wip_limite=limite)
+    existentes = [c.id for c in projeto.colunas]
+    if identificador in existentes:
+        projeto.colunas = [nova if c.id == identificador else c
+                           for c in projeto.colunas]
+    else:
+        projeto.colunas.append(nova)
+ 
+    repo.salvar_projeto(projeto)
+    return RedirectResponse("/admin/colunas", status_code=303)
+ 
+ 
+@app.post("/admin/coluna/mover")
+def mover_coluna(request: Request, coluna_id: str = Form(...),
+                 direcao: str = Form(...)):
+    """A ordem do array E a ordem das colunas na tela."""
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    projeto = repo.projeto()
+    ids = [c.id for c in projeto.colunas]
+    if coluna_id in ids:
+        i = ids.index(coluna_id)
+        j = i - 1 if direcao == "esquerda" else i + 1
+        if 0 <= j < len(projeto.colunas):
+            projeto.colunas[i], projeto.colunas[j] = projeto.colunas[j], projeto.colunas[i]
+            repo.salvar_projeto(projeto)
+ 
+    return RedirectResponse("/admin/colunas", status_code=303)
+ 
+ 
+@app.post("/admin/coluna/excluir")
+def excluir_coluna(request: Request, coluna_id: str = Form(...)):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    projeto = repo.projeto()
+    if len(projeto.colunas) <= 1:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem": "O board precisa de pelo menos uma coluna."},
+            status_code=409)
+ 
+    tarefas = [t.id for _, t in repo.todas_tarefas() if t.status == coluna_id]
+    if tarefas:
+        return templates.TemplateResponse(
+            request=request, name="erro.html",
+            context={"mensagem":
+                     f"a coluna '{coluna_id}' tem {len(tarefas)} tarefa(s) "
+                     f"({', '.join(tarefas[:8])}). Mova-as antes de excluir."},
+            status_code=409)
+ 
+    projeto.colunas = [c for c in projeto.colunas if c.id != coluna_id]
+    repo.salvar_projeto(projeto)
+    return RedirectResponse("/admin/colunas", status_code=303)
+ 
+ 
+# ---------------------------------------------------------------------------
+# Stack
+# ---------------------------------------------------------------------------
+ 
+ 
+@app.get("/admin/stack")
+def admin_stack(request: Request):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+    return templates.TemplateResponse(
+        request=request, name="admin_stack.html",
+        context={"projeto": repo.projeto(), "eu": eu,
+                 "stack": repo.stack(), "membros": repo.equipe().membros})
+ 
+ 
+@app.post("/admin/stack/produto")
+def salvar_produto(request: Request, nome: str = Form(...),
+                   descricao: str = Form("")):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    stack = repo.stack()
+    stack.produto = Produto(nome=nome, descricao=descricao)
+    repo.salvar_stack(stack)
+    return RedirectResponse("/admin/stack", status_code=303)
+ 
+ 
+@app.post("/admin/stack/item")
+def salvar_item_stack(request: Request, original: str = Form(""),
+                      camada: str = Form(...), tecnologia: str = Form(...),
+                      responsavel: str = Form(""), justificativa: str = Form("")):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    stack = repo.stack()
+    chave = original or camada
+    novo = ItemStack(camada=camada, tecnologia=tecnologia,
+                     responsavel=_ou_nulo(responsavel),
+                     justificativa=justificativa)
+    if chave in [i.camada for i in stack.itens]:
+        stack.itens = [novo if i.camada == chave else i for i in stack.itens]
+    else:
+        stack.itens.append(novo)
+ 
+    repo.salvar_stack(stack)
+    return RedirectResponse("/admin/stack", status_code=303)
+ 
+ 
+@app.post("/admin/stack/excluir")
+def excluir_item_stack(request: Request, camada: str = Form(...)):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    stack = repo.stack()
+    stack.itens = [i for i in stack.itens if i.camada != camada]
+    repo.salvar_stack(stack)
+    return RedirectResponse("/admin/stack", status_code=303)
+ 
+ 
+# ---------------------------------------------------------------------------
+# Historico de revisoes da ERS
+# ---------------------------------------------------------------------------
+ 
+ 
+@app.get("/admin/revisoes")
+def admin_revisoes(request: Request):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+    return templates.TemplateResponse(
+        request=request, name="admin_revisoes.html",
+        context={"projeto": repo.projeto(), "eu": eu,
+                 "revisoes": repo.documento().revisoes,
+                 "hoje": date.today().isoformat()})
+ 
+ 
+@app.post("/admin/revisao/salvar")
+def salvar_revisao(request: Request, versao: str = Form(...),
+                   data: str = Form(...), descricao: str = Form(""),
+                   autor: str = Form("")):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    doc = repo.documento()
+    nova = Revisao(versao=versao, data=data, descricao=descricao,
+                   autor=autor or eu.nome)
+    doc.revisoes = [r for r in doc.revisoes if r.versao != versao] + [nova]
+    doc.revisoes.sort(key=lambda r: r.data)
+    repo.salvar_documento(doc)
+    return RedirectResponse("/admin/revisoes", status_code=303)
+ 
+ 
+@app.post("/admin/revisao/excluir")
+def excluir_revisao(request: Request, versao: str = Form(...)):
+    eu, saida = _so_admin(request)
+    if saida:
+        return saida
+ 
+    doc = repo.documento()
+    doc.revisoes = [r for r in doc.revisoes if r.versao != versao]
+    repo.salvar_documento(doc)
+    return RedirectResponse("/admin/revisoes", status_code=303)
+
+@app.post("/sincronizar/backup")
+def backup_agora(request: Request):
+    """Backup manual, para quem nao quer esperar o ciclo automatico."""
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/sincronizar", status_code=303)
+ 
+    ok, saida = backup.executar(RAIZ)
+    return _tela_git(request, eu,
+                     {"acao": "Backup no GitHub", "ok": ok, "saida": saida})

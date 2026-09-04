@@ -1,21 +1,27 @@
 # Cache do Python
 __pycache__/
 *.py[cod]
-
+ 
 # Ambientes virtuais
 .venv/
 venv/
 env/
-
+ 
 # Escrita atomica: se o app morrer no meio de uma gravacao, o temporario
 # sobra na pasta. Nunca deve ser commitado.
 dados/**/*.json.tmp
-
+ 
+# Scripts descartaveis de teste manual
+teste.py
+ 
+# Variaveis de ambiente: contem token e chave de sessao
+.env
+ 
 # Editor
 .vscode/*
 !.vscode/settings.json
 .idea/
-
+ 
 # Sistema
 Thumbs.db
 desktop.ini

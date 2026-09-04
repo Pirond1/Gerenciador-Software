@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Administracao — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">configuracao do sistema</p>
+    <h1>Administracao</h1>
+  </div>
+</header>
+
+{% if sem_senha %}
+<section class="alerta">
+  <p class="alerta__titulo">{{ sem_senha|length }} pessoa(s) sem codigo de acesso</p>
+  <ul><li>{{ sem_senha|join(', ') }}</li></ul>
+  <p class="campo__ajuda">Quem nao tem codigo entra sem senha. Defina antes de publicar o sistema.</p>
+</section>
+{% endif %}
+
+<div class="secoes">
+  <a class="secao secao--link" href="/admin/equipe">
+    <p class="secao__numero">01</p>
+    <h2 class="secao__titulo">Equipe</h2>
+    <p class="secao__estado">{{ membros }} pessoa(s) · papeis, perfis e codigos</p>
+  </a>
+
+  <a class="secao secao--link" href="/admin/colunas">
+    <p class="secao__numero">02</p>
+    <h2 class="secao__titulo">Colunas do board</h2>
+    <p class="secao__estado">{{ colunas }} coluna(s) · ordem e limite de WIP</p>
+  </a>
+
+  <a class="secao secao--link" href="/admin/stack">
+    <p class="secao__numero">03</p>
+    <h2 class="secao__titulo">Stack de tecnologia</h2>
+    <p class="secao__estado">{{ itens_stack }} camada(s)</p>
+  </a>
+
+  <a class="secao secao--link" href="/admin/revisoes">
+    <p class="secao__numero">04</p>
+    <h2 class="secao__titulo">Revisoes da ERS</h2>
+    <p class="secao__estado">{{ revisoes }} revisao(oes)</p>
+  </a>
+</div>
+{% endblock %}

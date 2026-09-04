@@ -103,6 +103,7 @@ class Membro(Base):
     perfil: Perfil
     cor: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")
     github: Optional[str] = None
+    senha_hash: str = ""
 
     @model_validator(mode="after")
     def _papeis_obrigatorios_para_membros(self):

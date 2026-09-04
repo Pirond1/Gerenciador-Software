@@ -36,6 +36,9 @@
     </a>
     {% endif %}
 
+    {% if eu.perfil.value == 'admin' %}
+    <a class="barra__sair" href="/admin">Administracao</a>
+    {% endif %}
     <a class="barra__sair" href="/sair">Trocar de pessoa</a>
   </div>
   {% endif %}
