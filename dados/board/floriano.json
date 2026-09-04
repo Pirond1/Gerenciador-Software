@@ -26,7 +26,7 @@
       "id": "T-015",
       "titulo": "ERS 3.6 — Diagrama entidade-relacionamento",
       "descricao": "Entidades: usuario, amizade, postagem, curtida, comentario e registro de moderacao.\n\n- amizade e simetrica: par ordenado + situacao, sem linha duplicada\n- curtida unica por (usuario, postagem)\n- indice por `criado_em` decrescente sustenta o feed\n- registro de moderacao guarda veredito e motivo, mesmo de post reprovado",
-      "status": "revisao",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
       "requisitos": [
@@ -38,14 +38,14 @@
         "RF_F05"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-04T21:43:33",
-      "atualizado_por": "floriano"
+      "atualizado_em": "2026-09-04T22:08:01",
+      "atualizado_por": "gustavo"
     },
     {
       "id": "T-016",
       "titulo": "ERS 3.4 — Diagrama de classes",
       "descricao": "Classes do dominio, coerentes com o DER da T-015.",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "media",
       "entrega": "E1",
       "requisitos": [
@@ -53,14 +53,14 @@
         "RF_F02"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:25",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-017",
       "titulo": "Criar o banco no PostgreSQL",
       "descricao": "Traduzir o DER em tabelas, chaves, restricoes e indices.\n\n- [ ] Unicidade de `usuario` (o @) e de `email`\n- [ ] Unicidade de curtida por (usuario, postagem)\n- [ ] Indice de postagem por `criado_em` decrescente\n- [ ] Script de criacao versionado",
-      "status": "fazendo",
+      "status": "a_fazer",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -71,8 +71,8 @@
         "RNF06"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-04T21:43:31",
-      "atualizado_por": "floriano"
+      "atualizado_em": "2026-09-04T22:08:49",
+      "atualizado_por": "gustavo"
     },
     {
       "id": "T-018",

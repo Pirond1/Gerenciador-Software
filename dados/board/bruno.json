@@ -5,7 +5,7 @@
       "id": "T-026",
       "titulo": "ERS 3.7 — Prototipo das telas web",
       "descricao": "- [ ] Login e cadastro\n- [ ] Feed\n- [ ] Perfil\n- [ ] Composicao de post\n- [ ] Amizades\n\nPartir do mockup do Figma removendo o que foi cortado do escopo: retweet, notificacoes, mensagens, explorar e verificado.",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
       "requisitos": [
@@ -15,7 +15,7 @@
         "RF_S02"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:29",
       "atualizado_por": "gustavo"
     },
     {

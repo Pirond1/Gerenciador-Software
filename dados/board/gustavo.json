@@ -90,38 +90,38 @@
       "id": "T-007",
       "titulo": "ERS 2.6 — Estudo de viabilidade",
       "descricao": "- [ ] Diagrama da topologia de rede\n- [ ] Custo da Hostinger\n- [ ] Custo estimado da API da Claude\n- [ ] Licencas de software",
-      "status": "revisao",
+      "status": "concluido",
       "prioridade": "media",
       "entrega": "E1",
       "requisitos": [
         "RNF08"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:07",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-008",
       "titulo": "Consolidar e revisar a ERS antes da entrega",
       "descricao": "Juntar as secoes, conferir a numeracao dos RF, checar que o escopo (1.2) bate com as funcoes do produto (2.2) e preencher o historico de revisoes.\n\nSo comecar quando as outras tarefas de ERS estiverem em revisao.",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
       "requisitos": [],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-01T09:00:00",
+      "atualizado_em": "2026-09-04T22:08:34",
       "atualizado_por": "gustavo"
     },
     {
       "id": "T-009",
       "titulo": "Contrato da API — documento mestre",
       "descricao": "Fonte da verdade. Cada tarefa de back, front e mobile repete o trecho que lhe cabe, para ninguem precisar abrir a tarefa do outro.\n\n## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n## Codigos HTTP\n\n| Codigo | Quando |\n|---|---|\n| 200 | leitura ou alteracao ok |\n| 201 | recurso criado |\n| 204 | removido, sem corpo |\n| 401 | sem token ou token invalido |\n| 403 | autenticado, mas sem permissao |\n| 404 | nao existe |\n| 422 | validacao falhou ou conteudo reprovado |\n| 503 | moderacao indisponivel |\n\n## Objetos\n\n`UsuarioResumo` — embutido em postagens, comentarios e listas:\n```json\n{ \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"avatar_url\": \"https://exemplo.com/a.jpg\" }\n```\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n`Comentario`:\n```json\n{ \"id\": 401,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do comentario\",\n  \"criado_em\": \"2026-09-04T15:02:00Z\" }\n```\n\n## Paginacao\n\nCursor opaco, nunca offset. `meta.proximo_cursor` nulo = fim.\n\n## Mapa de endpoints\n\n| Rota | Back | Front | Mobile |\n|---|---|---|---|\n| `/auth/*` | T-018 | T-028 | T-036 |\n| `/eu`, `/usuarios/*` | T-019 | T-031 | T-039 |\n| `/amizades/*` | T-020 | T-033 | — |\n| `/postagens` (criar) | T-021 | T-030 | T-038 |\n| `/feed` | T-022 | T-029 | T-037 |\n| `/postagens/*/curtida` | T-023 | T-032 | T-040 |\n| `/postagens/*/comentarios` | T-024 | T-032 | T-040 |\n\n## Fora do escopo\n\nSem retweet, notificacoes, mensagens diretas, explorar ou selo de verificado.\n\n- [ ] Revisar com Floriano (back)\n- [ ] Revisar com Bruno (front) e Luca (mobile)\n- [ ] Congelar a v1 antes de qualquer implementacao",
-      "status": "revisao",
+      "status": "a_fazer",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:39",
       "atualizado_por": "gustavo"
     },
     {
@@ -157,7 +157,7 @@
       "id": "T-012",
       "titulo": "Definir politica de moderacao",
       "descricao": "Decisoes de projeto, sem codigo. Determinam o comportamento da T-021 e os casos de teste da T-049.\n\n- [ ] API fora do ar: bloqueia (503) ou publica sem moderar?\n- [ ] Tempo maximo de espera antes de desistir\n- [ ] Existe recurso quando a IA erra?\n- [ ] O que fica registrado de um post reprovado\n- [ ] O `motivo` da reprovacao e mostrado ao usuario?\n- [ ] Comentario tambem passa por moderacao?\n\nVira RNF na T-005.",
-      "status": "revisao",
+      "status": "a_fazer",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -166,7 +166,7 @@
         "RNF07"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:46",
       "atualizado_por": "gustavo"
     },
     {

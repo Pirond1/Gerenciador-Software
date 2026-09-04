@@ -5,7 +5,7 @@
       "id": "T-034",
       "titulo": "Prototipo das telas mobile",
       "descricao": "Equivalente mobile do prototipo web, com abas inferiores no lugar da barra lateral.\n\nMesmo escopo da T-026.",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
       "requisitos": [
@@ -15,7 +15,7 @@
         "RF_S02"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:21",
       "atualizado_por": "gustavo"
     },
     {

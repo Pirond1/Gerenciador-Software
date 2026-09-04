@@ -35,7 +35,7 @@
       "id": "T-043",
       "titulo": "ERS 3.1 — Diagrama de casos de uso",
       "descricao": "Atores e casos de uso, limitados ao escopo definido.",
-      "status": "fazendo",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": "E1",
       "requisitos": [
@@ -49,7 +49,7 @@
         "RF_S05"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
+      "atualizado_em": "2026-09-04T22:08:16",
       "atualizado_por": "gustavo"
     },
     {
