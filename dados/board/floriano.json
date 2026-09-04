@@ -26,7 +26,7 @@
       "id": "T-015",
       "titulo": "ERS 3.6 — Diagrama entidade-relacionamento",
       "descricao": "Entidades: usuario, amizade, postagem, curtida, comentario e registro de moderacao.\n\n- amizade e simetrica: par ordenado + situacao, sem linha duplicada\n- curtida unica por (usuario, postagem)\n- indice por `criado_em` decrescente sustenta o feed\n- registro de moderacao guarda veredito e motivo, mesmo de post reprovado",
-      "status": "a_fazer",
+      "status": "fazendo",
       "prioridade": "alta",
       "entrega": "E1",
       "requisitos": [
@@ -38,8 +38,8 @@
         "RF_F05"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
-      "atualizado_por": "gustavo"
+      "atualizado_em": "2026-09-04T18:16:03",
+      "atualizado_por": "floriano"
     },
     {
       "id": "T-016",

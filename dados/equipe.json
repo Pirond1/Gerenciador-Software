@@ -3,42 +3,57 @@
     {
       "id": "gustavo",
       "nome": "Gustavo",
-      "papeis": ["gestao"],
+      "papeis": [
+        "gestao"
+      ],
       "perfil": "admin",
       "cor": "#0a0a0a",
-      "github": "Pirond1"
+      "github": "Pirond1",
+      "senha_hash": "pbkdf2_sha256$260000$xe0JI+cfLvgYtNOddrTjYQ==$j+fqShYM/JZjxmqrKoIYLkuOh6ie5JdTLj8GP0UrxAA="
     },
     {
       "id": "luca",
       "nome": "Luca",
-      "papeis": ["mobile"],
+      "papeis": [
+        "mobile"
+      ],
       "perfil": "membro",
       "cor": "#0a0a0a",
-      "github": "lucacliborio"
+      "github": "lucacliborio",
+      "senha_hash": "pbkdf2_sha256$260000$WaPdUkjPwdsNqsj6oJmQPQ==$tBrssxWRYssNaE3YflERfPzyu3pwPEyLA/O9ECvp6GY="
     },
     {
       "id": "fabrin",
       "nome": "Fabrin",
-      "papeis": ["qa"],
+      "papeis": [
+        "qa"
+      ],
       "perfil": "membro",
       "cor": "#0a0a0a",
-      "github": "PedroFabrin"
+      "github": "PedroFabrin",
+      "senha_hash": "pbkdf2_sha256$260000$aX4Kf0tl3f7hdxiS1n8puw==$b1oeAWNqyPahryVpRGhCWQ6ygkhqoezpbI/fTLrRkUw="
     },
     {
       "id": "floriano",
       "nome": "Pedro",
-      "papeis": ["back"],
+      "papeis": [
+        "back"
+      ],
       "perfil": "membro",
       "cor": "#0a0a0a",
-      "github": "PedroFloriano"
+      "github": "PedroFloriano",
+      "senha_hash": "pbkdf2_sha256$260000$UhJpurDehqLsdCe7MLCqgg==$+OEWtYn/XWmc5kMq67BD0d68WElz4vl9ESG7GGosopg="
     },
     {
       "id": "bruno",
       "nome": "Bruno",
-      "papeis": ["front"],
+      "papeis": [
+        "front"
+      ],
       "perfil": "membro",
       "cor": "#0a0a0a",
-      "github": "Bruno491"
+      "github": "Bruno491",
+      "senha_hash": "pbkdf2_sha256$260000$q9DU+jrGLZRRukT65ytGqA==$7OB5pulacN73Yv1xg/DedtVSKu7iiJRGGAHwjHqu4h4="
     },
     {
       "id": "professor",
@@ -46,7 +61,8 @@
       "papeis": [],
       "perfil": "professor",
       "cor": "#0a0a0a",
-      "github": "Pirond1"
+      "github": "Pirond1",
+      "senha_hash": ""
     }
   ]
 }
