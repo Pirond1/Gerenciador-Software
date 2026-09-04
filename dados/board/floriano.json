@@ -78,7 +78,7 @@
       "id": "T-018",
       "titulo": "Implementar autenticacao e sessao",
       "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### POST /auth/cadastro — publica\n\n**Envia**\n```json\n{ \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"email\": \"ana@exemplo.com\", \"senha\": \"segredo123\" }\n```\n\n**201**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": null } } }\n```\n\n**422 `dados_invalidos`** — o unico erro com tratamento proprio na tela:\n```json\n{ \"erro\": { \"codigo\": \"dados_invalidos\",\n            \"mensagem\": \"Verifique os campos destacados.\",\n            \"campos\": { \"usuario\": \"ja esta em uso\",\n                        \"senha\": \"minimo de 8 caracteres\" } } }\n```\nAs chaves de `campos` sao os nomes enviados, para o front destacar direto.\n\n### POST /auth/login — publica\n\n**Envia** (`identificador` aceita o @ ou o e-mail)\n```json\n{ \"identificador\": \"anapaula\", \"senha\": \"segredo123\" }\n```\n\n**200**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": \"https://exemplo.com/a.jpg\" } } }\n```\n\n**401 `credenciais_invalidas`**\n```json\n{ \"erro\": { \"codigo\": \"credenciais_invalidas\",\n            \"mensagem\": \"Usuario ou senha incorretos.\" } }\n```\nMensagem generica de proposito: dizer qual dos dois errou entrega ao atacante\nquais contas existem.\n\n### POST /auth/logout — protegida\n\nSem corpo. **204** sem conteudo. O cliente descarta o token localmente.\n\n## Implementacao\n\n- [ ] Senha com hash forte, nunca texto puro\n- [ ] `usuario` e `email` unicos, com erro 422 padronizado\n- [ ] Middleware protegendo as demais rotas\n- [ ] 401 `nao_autenticado` quando falta ou expira o token",
-      "status": "backlog",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -86,8 +86,8 @@
         "RNF03"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
-      "atualizado_por": "gustavo"
+      "atualizado_em": "2026-09-04T21:20:00",
+      "atualizado_por": "floriano"
     },
     {
       "id": "T-019",
