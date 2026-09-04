@@ -8,11 +8,31 @@
     "drive": null
   },
   "colunas": [
-    { "id": "backlog",   "nome": "Backlog" },
-    { "id": "a_fazer",   "nome": "A Fazer" },
-    { "id": "fazendo",   "nome": "Fazendo", "wip_limite": 2 },
-    { "id": "revisao",   "nome": "Em Revisão" },
-    { "id": "concluido", "nome": "Concluído" }
+    {
+      "id": "backlog",
+      "nome": "Backlog",
+      "wip_limite": null
+    },
+    {
+      "id": "a_fazer",
+      "nome": "A Fazer",
+      "wip_limite": null
+    },
+    {
+      "id": "fazendo",
+      "nome": "Fazendo",
+      "wip_limite": 2
+    },
+    {
+      "id": "revisao",
+      "nome": "Em Revisão",
+      "wip_limite": null
+    },
+    {
+      "id": "concluido",
+      "nome": "Concluído",
+      "wip_limite": null
+    }
   ],
   "entregas": [
     {
