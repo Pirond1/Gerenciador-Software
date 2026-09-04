@@ -19,10 +19,10 @@ from datetime import date
 from app.models import (Coluna, ItemStack, Membro, Papel, Perfil,
                         Produto, Revisao, Stack,
                         CasoDeUso, Entrega, Membro, Perfil, Requisito, TipoRequisito, PREFIXO_REQUISITO,
-                        Ator, Atores, Documento, Glossario, Revisao, Termo)
+                        Ator, Atores, Documento, Glossario, Revisao, Termo, Figura)
 
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
+from fastapi import FastAPI, Form, Request, File, UploadFile
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -1058,6 +1058,7 @@ def ver_ers(request: Request):
                 tipo.value: sum(1 for r in requisitos if r.tipo == tipo)
                 for tipo, _ in SECOES_REQUISITO
             },
+            "imagens": sum(len(v) for v in doc.imagens.values()),
         })
  
  
@@ -1607,3 +1608,115 @@ def backup_agora(request: Request):
     ok, saida = backup.executar(RAIZ)
     return _tela_git(request, eu,
                      {"acao": "Backup no GitHub", "ok": ok, "saida": saida})
+
+# As secoes do documento que recebem imagem. A ordem e a do documento.
+SECOES_IMAGEM = [
+    ("topologia", "Topologia de rede", "Estudo de viabilidade (2.6)"),
+    ("casos_uso", "Diagrama de casos de uso", "Analise (3.1)"),
+    ("atividades", "Diagrama de atividades", "Analise (3.3)"),
+    ("classes", "Diagrama de classes", "Analise (3.4)"),
+    ("sequencia", "Diagrama de sequencia", "Analise (3.5)"),
+    ("der", "Diagrama entidade-relacionamento", "Analise (3.6)"),
+    ("prototipo", "Prototipo de telas", "Analise (3.7)"),
+]
+ 
+TIPOS_IMAGEM = {"png": "image/png", "jpg": "image/jpeg"}
+ 
+ 
+@app.get("/ers/imagens")
+def ver_imagens(request: Request, erro: str = ""):
+    eu = atual(request)
+    if eu is None:
+        return _para_entrada()
+ 
+    doc = repo.documento()
+    secoes = [
+        {"id": chave, "titulo": titulo, "onde": onde,
+         "figuras": doc.imagens.get(chave, [])}
+        for chave, titulo, onde in SECOES_IMAGEM
+    ]
+ 
+    return templates.TemplateResponse(
+        request=request, name="imagens.html",
+        context={"projeto": repo.projeto(), "eu": eu,
+                 "editavel": pode_editar(eu), "secoes": secoes, "erro": erro,
+                 "total": sum(len(s["figuras"]) for s in secoes)})
+ 
+ 
+@app.get("/ers/imagem/{arquivo}")
+def servir_imagem(arquivo: str):
+    """Serve a imagem do disco.
+ 
+    Nao usamos StaticFiles porque a pasta de dados muda de lugar em
+    producao (RAIZ_DADOS aponta para o volume), e o mount e resolvido uma
+    vez so, na inicializacao.
+    """
+    try:
+        caminho = repo.caminho_imagem(arquivo)
+    except ErroRepositorio:
+        return JSONResponse({"detalhe": "invalido"}, status_code=400)
+ 
+    if not caminho.exists():
+        return JSONResponse({"detalhe": "nao encontrada"}, status_code=404)
+ 
+    tipo = TIPOS_IMAGEM.get(caminho.suffix.lstrip(".").lower(), "application/octet-stream")
+    return FileResponse(caminho, media_type=tipo)
+ 
+ 
+@app.post("/ers/imagem/enviar")
+async def enviar_imagem(
+    request: Request,
+    secao: str = Form(...),
+    legenda: str = Form(""),
+    imagem: UploadFile = File(...),
+):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/imagens", status_code=303)
+ 
+    if secao not in {s[0] for s in SECOES_IMAGEM}:
+        return RedirectResponse("/ers/imagens", status_code=303)
+ 
+    try:
+        conteudo = await imagem.read()
+        arquivo = repo.salvar_imagem(secao, imagem.filename or "", conteudo)
+    except ErroRepositorio as e:
+        return RedirectResponse(f"/ers/imagens?erro={quote(str(e))}", status_code=303)
+ 
+    doc = repo.documento()
+    doc.imagens.setdefault(secao, []).append(
+        Figura(arquivo=arquivo, legenda=legenda))
+    repo.salvar_documento(doc)
+    return RedirectResponse("/ers/imagens", status_code=303)
+ 
+ 
+@app.post("/ers/imagem/excluir")
+def excluir_imagem(request: Request, secao: str = Form(...),
+                   arquivo: str = Form(...)):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/imagens", status_code=303)
+ 
+    doc = repo.documento()
+    doc.imagens[secao] = [f for f in doc.imagens.get(secao, [])
+                          if f.arquivo != arquivo]
+    repo.salvar_documento(doc)
+    # O arquivo sai depois do JSON: se a ordem fosse inversa e a gravacao
+    # falhasse, a ERS ficaria apontando para imagem inexistente.
+    repo.excluir_imagem(arquivo)
+    return RedirectResponse("/ers/imagens", status_code=303)
+ 
+ 
+@app.post("/ers/imagem/legenda")
+def alterar_legenda(request: Request, secao: str = Form(...),
+                    arquivo: str = Form(...), legenda: str = Form("")):
+    eu = atual(request)
+    if not pode_editar(eu):
+        return RedirectResponse("/ers/imagens", status_code=303)
+ 
+    doc = repo.documento()
+    for figura in doc.imagens.get(secao, []):
+        if figura.arquivo == arquivo:
+            figura.legenda = legenda
+    repo.salvar_documento(doc)
+    return RedirectResponse("/ers/imagens", status_code=303)

@@ -44,6 +44,7 @@ class Repositorio:
         self.casos_dir = self.dados / "ers" / "casos-uso"
         self.ers_dir = self.dados / "ers"
         self._trava = threading.RLock()
+        self.imagens_dir = self.dados / "ers" / "imagens"
 
     # -----------------------------------------------------------------
     # Primitivas de disco -- o unico ponto do sistema que toca arquivo
@@ -464,3 +465,61 @@ class Repositorio:
             # documento, e mantem o diff estavel a cada insercao.
             glossario.termos.sort(key=lambda t: t.termo.lower())
             self._gravar(self.ers_dir / "glossario.json", glossario)
+
+    # -----------------------------------------------------------------
+    # Imagens da ERS
+    # -----------------------------------------------------------------
+ 
+    TAMANHO_MAXIMO = 4 * 1024 * 1024  # 4 MB por imagem
+    EXTENSOES = {"png": "png", "jpg": "jpg", "jpeg": "jpg"}
+ 
+    def caminho_imagem(self, arquivo: str) -> Path:
+        """Resolve o caminho recusando qualquer tentativa de sair da pasta.
+ 
+        O nome vem da URL: sem esta checagem, '../../etc/senha' seria
+        servido pelo app.
+        """
+        destino = (self.imagens_dir / arquivo).resolve()
+        if not str(destino).startswith(str(self.imagens_dir.resolve())):
+            raise ErroRepositorio("caminho de imagem invalido")
+        return destino
+ 
+    def salvar_imagem(self, secao: str, nome_original: str, conteudo: bytes) -> str:
+        """Grava a imagem e devolve o nome do arquivo gerado.
+ 
+        O nome e gerado por nos, nunca aproveitado do upload: nome vindo do
+        navegador pode conter caminho, acento ou caractere que quebra o
+        sistema de arquivos.
+        """
+        extensao = nome_original.rsplit(".", 1)[-1].lower() if "." in nome_original else ""
+        if extensao not in self.EXTENSOES:
+            raise ErroRepositorio(
+                f"formato '{extensao or 'desconhecido'}' nao aceito. Use PNG ou JPG."
+            )
+        if len(conteudo) > self.TAMANHO_MAXIMO:
+            raise ErroRepositorio(
+                f"imagem de {len(conteudo) // 1024} KB excede o limite de "
+                f"{self.TAMANHO_MAXIMO // 1024} KB."
+            )
+        if not conteudo:
+            raise ErroRepositorio("arquivo vazio")
+ 
+        with self._trava:
+            self.imagens_dir.mkdir(parents=True, exist_ok=True)
+            usados = {p.name for p in self.imagens_dir.glob(f"{secao}-*")}
+            i = 1
+            while f"{secao}-{i}.{self.EXTENSOES[extensao]}" in usados:
+                i += 1
+            arquivo = f"{secao}-{i}.{self.EXTENSOES[extensao]}"
+ 
+            destino = self.imagens_dir / arquivo
+            temporario = destino.with_name(destino.name + ".tmp")
+            temporario.write_bytes(conteudo)
+            os.replace(temporario, destino)      # mesma escrita atomica dos JSONs
+            return arquivo
+ 
+    def excluir_imagem(self, arquivo: str) -> None:
+        with self._trava:
+            caminho = self.caminho_imagem(arquivo)
+            if caminho.exists():
+                caminho.unlink()

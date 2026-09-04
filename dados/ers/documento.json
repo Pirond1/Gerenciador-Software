@@ -21,5 +21,109 @@
       "descricao": "Versão inicial do documento",
       "autor": "Gustavo"
     }
-  ]
+  ],
+  "imagens": {
+    "der": [
+      {
+        "arquivo": "der-1.png",
+        "legenda": ""
+      }
+    ],
+    "topologia": [
+      {
+        "arquivo": "topologia-1.png",
+        "legenda": ""
+      }
+    ],
+    "casos_uso": [
+      {
+        "arquivo": "casos_uso-1.png",
+        "legenda": ""
+      }
+    ],
+    "atividades": [
+      {
+        "arquivo": "atividades-1.png",
+        "legenda": ""
+      }
+    ],
+    "classes": [
+      {
+        "arquivo": "classes-1.png",
+        "legenda": ""
+      }
+    ],
+    "sequencia": [
+      {
+        "arquivo": "sequencia-1.png",
+        "legenda": ""
+      }
+    ],
+    "prototipo": [
+      {
+        "arquivo": "prototipo-1.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-2.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-3.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-4.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-5.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-6.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-7.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-8.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-9.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-10.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-11.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-12.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-13.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-14.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-15.png",
+        "legenda": ""
+      },
+      {
+        "arquivo": "prototipo-16.png",
+        "legenda": ""
+      }
+    ]
+  }
 }

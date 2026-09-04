@@ -64,6 +64,12 @@
     <p class="secao__estado">{{ glossario|length }} termo(s)</p>
   </a>
 
+  <a class="secao secao--link {% if not imagens %}secao--vazia{% endif %}" href="/ers/imagens">
+    <p class="secao__numero">3.x</p>
+    <h2 class="secao__titulo">Diagramas e imagens</h2>
+    <p class="secao__estado">{{ imagens }} imagem(ns)</p>
+  </a>
+
   <a class="secao secao--link {% if not atores %}secao--vazia{% endif %}" href="/ers/atores">
     <p class="secao__numero">3.1</p>
     <h2 class="secao__titulo">Atores</h2>

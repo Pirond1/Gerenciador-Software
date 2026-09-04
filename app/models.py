@@ -345,6 +345,19 @@ class Revisao(Base):
     autor: str = ""
 
 
+class Figura(Base):
+    """Uma imagem da ERS.
+ 
+    Guardamos o NOME do arquivo, nao o conteudo. Base64 dentro do JSON
+    incharia o arquivo (uma imagem de 400 KB vira ~530 KB de texto),
+    tornaria o diff inutil e faria o repositorio crescer uma copia inteira
+    a cada troca de diagrama.
+    """
+ 
+    arquivo: str = Field(pattern=r"^[a-z0-9_-]+\.(png|jpg|jpeg)$")
+    legenda: str = ""
+
+
 class Documento(Base):
     """Secoes em prosa da ERS.
 
@@ -366,6 +379,7 @@ class Documento(Base):
     viabilidade: str = ""               # 2.6
     referencias: list[str] = Field(default_factory=list)   # 1.4
     revisoes: list[Revisao] = Field(default_factory=list)
+    imagens: dict[str, list[Figura]] = Field(default_factory=dict)
 
 
 class Ator(Base):

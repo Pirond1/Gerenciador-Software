@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block titulo %}Diagramas — {{ projeto.nome }}{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div class="cabecalho__identidade">
+    <p class="eyebrow">especificacao</p>
+    <h1>Diagramas e imagens</h1>
+  </div>
+  <div class="cabecalho__direita">
+    {% if total %}<span class="selo">{{ total }}</span>{% endif %}
+    <a class="botao botao--fantasma" href="/ers">Voltar a ERS</a>
+  </div>
+</header>
+
+{% if erro %}
+<p class="aviso">{{ erro }}</p>
+{% endif %}
+
+<p class="entrada__nota">
+  PNG ou JPG, ate 4 MB. Exporte do draw.io em PNG com fundo branco.
+  As imagens entram automaticamente na ERS exportada.
+</p>
+
+{% for s in secoes %}
+<section class="secao-img">
+  <div class="secao-req__topo">
+    <h2>{{ s.titulo }}</h2>
+    <span class="medidor">{{ s.figuras|length }}</span>
+    <span class="secao-img__onde">{{ s.onde }}</span>
+  </div>
+
+  {% if s.figuras %}
+  <div class="figuras">
+    {% for f in s.figuras %}
+    <figure class="figura">
+      <a href="/ers/imagem/{{ f.arquivo }}" target="_blank" rel="noopener">
+        <img src="/ers/imagem/{{ f.arquivo }}" alt="{{ f.legenda or s.titulo }}">
+      </a>
+      {% if editavel %}
+      <figcaption>
+        <form method="post" action="/ers/imagem/legenda" class="figura__legenda">
+          <input type="hidden" name="secao" value="{{ s.id }}">
+          <input type="hidden" name="arquivo" value="{{ f.arquivo }}">
+          <input name="legenda" value="{{ f.legenda }}" maxlength="120"
+                 placeholder="Legenda">
+          <button class="ligacao" type="submit">salvar</button>
+        </form>
+        <form method="post" action="/ers/imagem/excluir"
+              onsubmit="return confirm('Excluir esta imagem?')">
+          <input type="hidden" name="secao" value="{{ s.id }}">
+          <input type="hidden" name="arquivo" value="{{ f.arquivo }}">
+          <button class="ligacao-perigo" type="submit">excluir</button>
+        </form>
+      </figcaption>
+      {% elif f.legenda %}
+      <figcaption class="figura__texto">{{ f.legenda }}</figcaption>
+      {% endif %}
+    </figure>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="vazio vazio--esquerda">Nenhuma imagem enviada.</p>
+  {% endif %}
+
+  {% if editavel %}
+  <form class="envio" method="post" action="/ers/imagem/enviar"
+        enctype="multipart/form-data">
+    <input type="hidden" name="secao" value="{{ s.id }}">
+    <input type="file" name="imagem" accept=".png,.jpg,.jpeg" required>
+    <input name="legenda" maxlength="120" placeholder="Legenda (opcional)">
+    <button class="botao" type="submit">Enviar</button>
+  </form>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

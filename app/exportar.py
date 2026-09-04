@@ -19,12 +19,15 @@ from docx.enum.section import WD_SECTION
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.image.image import Image as ImagemDocx
 from docx.shared import Cm, Pt
 
 from app.models import PREFIXO_REQUISITO, TipoRequisito
 
 # No modelo do professor estas tres sao irmas de "Funcoes do produto",
 # em Heading 2 -- nao subsecoes numeradas dela.
+PASTA_IMAGENS = None
+
 SECOES_FUNCOES = [
     (TipoRequisito.BASICA, "FUNÇÕES BÁSICAS"),
     (TipoRequisito.FUNDAMENTAL, "FUNÇÕES FUNDAMENTAIS"),
@@ -191,6 +194,44 @@ def _tabela(doc, cabecalho: list[str], linhas: list[list[str]], larguras: list[f
     return tabela
 
 
+def _figuras(doc, documento, secao: str) -> bool:
+    """Insere as imagens de uma secao. Devolve True se inseriu alguma.
+
+    A largura e limitada a 16 cm (a util da pagina A4 com as margens
+    padrao) e a altura a 20 cm. Sem o limite de altura, um diagrama
+    vertical estourado empurraria a legenda para a pagina seguinte.
+    """
+    figuras = documento.imagens.get(secao, [])
+    if not figuras:
+        return False
+
+    for figura in figuras:
+        caminho = PASTA_IMAGENS / figura.arquivo
+        if not caminho.exists():
+            _texto(doc, f"[imagem ausente: {figura.arquivo}]", italico=True)
+            continue
+
+        try:
+            info = ImagemDocx.from_file(str(caminho))
+            proporcao = info.px_height / info.px_width
+            largura = min(Cm(16), Cm(20 / proporcao) if proporcao else Cm(16))
+            doc.add_picture(str(caminho), width=largura)
+            doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        except Exception as e:
+            _texto(doc, f"[nao foi possivel inserir {figura.arquivo}: {e}]",
+                   italico=True)
+            continue
+
+        if figura.legenda:
+            legenda = doc.add_paragraph()
+            legenda.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run = legenda.add_run(figura.legenda)
+            run.italic = True
+            run.font.size = Pt(9)
+
+    return True
+
+
 def _lista_rotulada(doc, rotulo: str, itens: list[str]) -> None:
     if not itens:
         return
@@ -334,6 +375,9 @@ def _caso_de_uso(doc, caso, atores_por_id) -> None:
 
 
 def gerar(repo) -> BytesIO:
+    global PASTA_IMAGENS
+    PASTA_IMAGENS = repo.imagens_dir
+
     """Monta a ERS completa e devolve o arquivo em memoria."""
     projeto = repo.projeto()
     equipe = repo.equipe()
@@ -425,6 +469,7 @@ def gerar(repo) -> BytesIO:
 
     doc.add_heading("ESTUDO DE VIABILIDADE", level=2)
     _markdown(doc, documento.viabilidade)
+    _figuras(doc, documento, "topologia")
     doc.add_page_break()
 
     # ---------------- 3. Requisitos especificos ----------------
@@ -437,7 +482,8 @@ def gerar(repo) -> BytesIO:
             doc.add_paragraph(
                 f"{a.nome}" + (f" — {a.descricao}" if a.descricao else ""),
                 style="List Bullet")
-    _texto(doc, "Diagrama de casos de uso: inserir imagem.", italico=True)
+    if not _figuras(doc, documento, "casos_uso"):
+        _texto(doc, "Diagrama de casos de uso: inserir imagem.", italico=True)
 
     doc.add_heading("ESPECIFICAÇÕES DE CASO DE USO", level=2)
     if casos:
@@ -446,11 +492,14 @@ def gerar(repo) -> BytesIO:
     else:
         _texto(doc, "Nenhum caso de uso especificado.", italico=True)
 
-    for titulo in ["DIAGRAMA DE ATIVIDADES", "DIAGRAMA DE CLASSE",
-                   "DIAGRAMA DE SEQUÊNCIA", "DIAGRAMA ENTIDADE RELACIONAMENTO",
-                   "PROTÓTIPO"]:
+    for chave, titulo in [("atividades", "DIAGRAMA DE ATIVIDADES"),
+                          ("classes", "DIAGRAMA DE CLASSE"),
+                          ("sequencia", "DIAGRAMA DE SEQUÊNCIA"),
+                          ("der", "DIAGRAMA ENTIDADE RELACIONAMENTO"),
+                          ("prototipo", "PROTÓTIPO")]:
         doc.add_heading(titulo, level=2)
-        _texto(doc, "Inserir imagem.", italico=True)
+        if not _figuras(doc, documento, chave):
+            _texto(doc, "Inserir imagem.", italico=True)
 
     # ---------------- Apendice ----------------
     # A matriz nao esta no modelo do professor. Entra porque e o unico
