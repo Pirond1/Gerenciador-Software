@@ -51,7 +51,7 @@
       "id": "T-037",
       "titulo": "Feed mobile",
       "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### GET /feed — protegida\n\nPostagens dos amigos aceitos e as proprias, mais recentes primeiro.\n\n**Parametros**\n\n| Nome | Padrao | Observacao |\n|---|---|---|\n| `limite` | 20 | maximo 50 |\n| `cursor` | ausente | opaco, veio de `meta.proximo_cursor` |\n\n**200**\n```json\n{ \"dados\": [\n    { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n        \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n      \"conteudo\": \"texto do post\",\n      \"criado_em\": \"2026-09-04T14:32:10Z\",\n      \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n  ],\n  \"meta\": { \"proximo_cursor\": \"MjAyNi0wOS0wNFQxNDozMjoxMFp8ODg\" } }\n```\n\n`proximo_cursor` nulo significa fim da lista. Lista vazia na primeira pagina\nsignifica sem amigos ou sem postagens — sao estados de tela diferentes.\n\nCursor em vez de offset porque o feed cresce por cima: com `offset=20`, tres\npostagens novas durante a rolagem fazem o usuario ver item repetido.\n\n## Na tela\n\n- [ ] Rolagem infinita com `meta.proximo_cursor`\n- [ ] Puxar para atualizar refaz a primeira pagina, sem cursor\n- [ ] Tempo relativo e contagens formatados no cliente\n- [ ] Estado offline",
-      "status": "a_fazer",
+      "status": "fazendo",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -59,14 +59,14 @@
         "RNF06"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-29T01:01:11",
+      "atualizado_em": "2026-10-08T23:44:33",
       "atualizado_por": "luca"
     },
     {
       "id": "T-038",
       "titulo": "Composicao de post mobile",
       "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### POST /postagens — protegida\n\nPassa pela moderacao ANTES de gravar. Tres respostas, e a tela trata as tres.\n\n**Envia**\n```json\n{ \"conteudo\": \"texto do post\" }\n```\n\n**201 — aprovado**, devolve a `Postagem` criada:\n```json\n{ \"dados\": { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n      \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n    \"conteudo\": \"texto do post\",\n    \"criado_em\": \"2026-09-04T14:32:10Z\",\n    \"curtidas\": 0, \"comentarios\": 0, \"curtido_por_mim\": false } }\n```\n\n**422 `conteudo_reprovado`** — a IA barrou; nada foi gravado:\n```json\n{ \"erro\": { \"codigo\": \"conteudo_reprovado\",\n            \"mensagem\": \"Este conteudo viola as regras da comunidade.\",\n            \"motivo\": \"violencia\" } }\n```\n`motivo` assume `violencia`, `odio`, `assedio`, `conteudo_perigoso` ou `outro`.\n\n**503 `moderacao_indisponivel`** — nao foi possivel analisar:\n```json\n{ \"erro\": { \"codigo\": \"moderacao_indisponivel\",\n            \"mensagem\": \"Nao foi possivel analisar seu post agora. Tente de novo.\" } }\n```\n\n**422 `dados_invalidos`** — conteudo vazio ou acima de 280 caracteres.\n\n## Na tela\n\nMesmo tratamento das tres respostas da T-030. O texto NUNCA se perde quando a\nmoderacao reprova ou falha — em celular, redigitar e pior ainda.\n\n- [ ] 201 insere no topo · 422 mantem texto e mostra motivo · 503 oferece\n      tentar de novo\n- [ ] Indicador de analise em andamento\n- [ ] Contador de caracteres (280)",
-      "status": "backlog",
+      "status": "fazendo",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -75,8 +75,8 @@
         "RNF07"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
-      "atualizado_por": "gustavo"
+      "atualizado_em": "2026-10-08T23:57:55",
+      "atualizado_por": "luca"
     },
     {
       "id": "T-039",
