@@ -93,7 +93,7 @@
       "id": "T-019",
       "titulo": "Implementar usuario e perfil",
       "descricao": "## Convencoes\r\n\r\n- Base `/api/v1` · JSON em requisicao e resposta\r\n- Rotas protegidas exigem `Authorization: Bearer <token>`\r\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\r\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\r\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\r\n\r\n`UsuarioResumo` — embutido em postagens, comentarios e listas:\r\n```json\r\n{ \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\r\n  \"avatar_url\": \"https://exemplo.com/a.jpg\" }\r\n```\r\n\r\n### GET /eu — protegida\r\n\r\nSem parametros.\r\n\r\n**200** (inclui `email`, que o perfil publico nao traz)\r\n```json\r\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\r\n             \"email\": \"ana@exemplo.com\",\r\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\r\n             \"criado_em\": \"2026-08-01T10:00:00Z\" } }\r\n```\r\n\r\n### PATCH /eu — protegida\r\n\r\n**Envia** apenas os campos que mudam:\r\n```json\r\n{ \"nome\": \"Ana P. Silva\", \"avatar_url\": \"https://exemplo.com/b.jpg\" }\r\n```\r\n\r\n**200** com o mesmo objeto de `GET /eu` ja atualizado.\r\n\r\n### GET /usuarios/{usuario} — protegida\r\n\r\n`{usuario}` e o @, nao o id.\r\n\r\n**200**\r\n```json\r\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\r\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\r\n             \"total_postagens\": 42,\r\n             \"amizade\": \"aceita\",\r\n             \"amizade_id\": 77 } }\r\n```\r\n\r\n`amizade` assume `nenhuma`, `pendente_enviada`, `pendente_recebida`, `aceita`\r\nou `eu_mesmo`. E o campo que decide o botao da tela sem precisar de outra\r\nchamada. `amizade_id` vem nulo quando `amizade` e `nenhuma` ou `eu_mesmo`.\r\n\r\n**404 `usuario_nao_encontrado`**\r\n\r\n### GET /usuarios/{usuario}/postagens — protegida\r\n\r\nParametros: `limite` (padrao 20, maximo 50) e `cursor`.\r\n\r\n**200** — mesma forma paginada do feed, com objetos `Postagem`.\r\n\r\n## Implementacao\r\n\r\n- [ ] `email` so aparece em `/eu`, nunca no perfil publico\r\n- [ ] `amizade` calculado em relacao ao usuario do token\r\n- [ ] `total_postagens` contado no banco, sem trazer as postagens\r\n\r\nAtende o RF_B de gerenciar usuario.",
-      "status": "backlog",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -102,8 +102,8 @@
         "RF_S02"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-03T16:16:27",
-      "atualizado_por": "gustavo"
+      "atualizado_em": "2026-10-09T18:58:38",
+      "atualizado_por": "floriano"
     },
     {
       "id": "T-020",
