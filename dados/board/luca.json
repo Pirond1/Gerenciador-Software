@@ -82,14 +82,14 @@
       "id": "T-039",
       "titulo": "Perfil mobile",
       "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### GET /usuarios/{usuario} — protegida\n\n`{usuario}` e o @, nao o id.\n\n**200**\n```json\n{ \"dados\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\",\n             \"total_postagens\": 42,\n             \"amizade\": \"aceita\",\n             \"amizade_id\": 77 } }\n```\n\n`amizade` assume `nenhuma`, `pendente_enviada`, `pendente_recebida`, `aceita`\nou `eu_mesmo`. E o campo que decide o botao da tela sem precisar de outra\nchamada. `amizade_id` vem nulo quando `amizade` e `nenhuma` ou `eu_mesmo`.\n\n**404 `usuario_nao_encontrado`**\n\n### GET /usuarios/{usuario}/postagens — protegida\n\nParametros: `limite` (padrao 20, maximo 50) e `cursor`.\n\n**200** — mesma forma paginada do feed, com objetos `Postagem`.\n\n## Na tela\n\n- [ ] Botao decidido por `amizade`, igual a T-031\n- [ ] Postagens paginadas por cursor",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "media",
       "entrega": null,
       "requisitos": [
         "RF_S02"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-10-09T00:36:01",
+      "atualizado_em": "2026-10-19T21:41:40",
       "atualizado_por": "luca"
     },
     {
