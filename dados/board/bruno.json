@@ -22,35 +22,35 @@
       "id": "T-027",
       "titulo": "Estrutura do projeto React",
       "descricao": "Projeto base, rotas, cliente HTTP e padrao de componentes.\n\n## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n## Trabalhar sem o back pronto\n\nTodo HTTP isolado num modulo `api/`. Enquanto a API nao existe, ele devolve\nexatamente os JSONs acima com atraso artificial de ~600ms. Quando o back\nsubir, troca-se so esse modulo — nenhum componente monta URL nem conhece o\nformato do envelope.\n\nSimule tambem os erros: sem eles, os caminhos de falha so aparecem em\nproducao.\n\n- [ ] Modulo `api/` com os tipos do contrato\n- [ ] Dados falsos: feed com 2 paginas, perfil, amizades\n- [ ] Token guardado e enviado no `Authorization`\n- [ ] 401 global volta para o login",
-      "status": "fazendo",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
         "RNF05"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-28T00:20:33",
-      "atualizado_por": "bruno"
+      "atualizado_em": "2026-10-30T18:54:17",
+      "atualizado_por": "gustavo"
     },
     {
       "id": "T-028",
       "titulo": "Tela de login e cadastro",
       "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n### POST /auth/login — publica\n\n**Envia** (`identificador` aceita o @ ou o e-mail)\n```json\n{ \"identificador\": \"anapaula\", \"senha\": \"segredo123\" }\n```\n\n**200**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": \"https://exemplo.com/a.jpg\" } } }\n```\n\n**401 `credenciais_invalidas`**\n```json\n{ \"erro\": { \"codigo\": \"credenciais_invalidas\",\n            \"mensagem\": \"Usuario ou senha incorretos.\" } }\n```\nMensagem generica de proposito: dizer qual dos dois errou entrega ao atacante\nquais contas existem.\n\n### POST /auth/cadastro — publica\n\n**Envia**\n```json\n{ \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n  \"email\": \"ana@exemplo.com\", \"senha\": \"segredo123\" }\n```\n\n**201**\n```json\n{ \"dados\": { \"token\": \"eyJhbGciOi...\",\n             \"usuario\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n                          \"avatar_url\": null } } }\n```\n\n**422 `dados_invalidos`** — o unico erro com tratamento proprio na tela:\n```json\n{ \"erro\": { \"codigo\": \"dados_invalidos\",\n            \"mensagem\": \"Verifique os campos destacados.\",\n            \"campos\": { \"usuario\": \"ja esta em uso\",\n                        \"senha\": \"minimo de 8 caracteres\" } } }\n```\nAs chaves de `campos` sao os nomes enviados, para o front destacar direto.\n\n## Na tela\n\n- [ ] 401 vira mensagem generica unica, sem dizer qual campo errou\n- [ ] 422 destaca cada campo usando as chaves de `erro.campos`\n- [ ] Botao bloqueado durante o envio\n- [ ] Token guardado; redireciona para o feed",
-      "status": "fazendo",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
         "RF_F01"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-28T00:20:35",
-      "atualizado_por": "bruno"
+      "atualizado_em": "2026-10-30T18:54:14",
+      "atualizado_por": "gustavo"
     },
     {
       "id": "T-029",
       "titulo": "Feed web",
       "descricao": "## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### GET /feed — protegida\n\nPostagens dos amigos aceitos e as proprias, mais recentes primeiro.\n\n**Parametros**\n\n| Nome | Padrao | Observacao |\n|---|---|---|\n| `limite` | 20 | maximo 50 |\n| `cursor` | ausente | opaco, veio de `meta.proximo_cursor` |\n\n**200**\n```json\n{ \"dados\": [\n    { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n        \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n      \"conteudo\": \"texto do post\",\n      \"criado_em\": \"2026-09-04T14:32:10Z\",\n      \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n  ],\n  \"meta\": { \"proximo_cursor\": \"MjAyNi0wOS0wNFQxNDozMjoxMFp8ODg\" } }\n```\n\n`proximo_cursor` nulo significa fim da lista. Lista vazia na primeira pagina\nsignifica sem amigos ou sem postagens — sao estados de tela diferentes.\n\nCursor em vez de offset porque o feed cresce por cima: com `offset=20`, tres\npostagens novas durante a rolagem fazem o usuario ver item repetido.\n\n## Na tela\n\n- [ ] \"Carregar mais\" usando `meta.proximo_cursor`; some quando vier nulo\n- [ ] `criado_em` formatado como \"2h\" no cliente\n- [ ] `curtidas` formatado como \"3,2 mil\" no cliente\n- [ ] Lista vazia: distinguir \"sem amigos\" de \"amigos sem postagens\"\n- [ ] Estado de carregamento",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -58,14 +58,14 @@
         "RNF06"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-28T00:20:47",
-      "atualizado_por": "bruno"
+      "atualizado_em": "2026-10-30T18:54:23",
+      "atualizado_por": "gustavo"
     },
     {
       "id": "T-030",
       "titulo": "Composicao de post com retorno da moderacao",
       "descricao": "A tela mais delicada do produto.\n\n## Convencoes\n\n- Base `/api/v1` · JSON em requisicao e resposta\n- Rotas protegidas exigem `Authorization: Bearer <token>`\n- Sucesso: `{ \"dados\": ..., \"meta\": ... }` · Erro: `{ \"erro\": { \"codigo\", \"mensagem\" } }`\n- Datas em ISO 8601 UTC. O cliente formata \"2h\"; o servidor nunca envia texto relativo\n- Contagens inteiras (`3201`). O \"3,2 mil\" e formatacao de tela\n\n`Postagem`:\n```json\n{ \"id\": 88,\n  \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\", \"usuario\": \"anapaula\",\n             \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n  \"conteudo\": \"texto do post\",\n  \"criado_em\": \"2026-09-04T14:32:10Z\",\n  \"curtidas\": 3201, \"comentarios\": 97, \"curtido_por_mim\": false }\n```\n\n### POST /postagens — protegida\n\nPassa pela moderacao ANTES de gravar. Tres respostas, e a tela trata as tres.\n\n**Envia**\n```json\n{ \"conteudo\": \"texto do post\" }\n```\n\n**201 — aprovado**, devolve a `Postagem` criada:\n```json\n{ \"dados\": { \"id\": 88, \"autor\": { \"id\": 12, \"nome\": \"Ana Paula\",\n      \"usuario\": \"anapaula\", \"avatar_url\": \"https://exemplo.com/a.jpg\" },\n    \"conteudo\": \"texto do post\",\n    \"criado_em\": \"2026-09-04T14:32:10Z\",\n    \"curtidas\": 0, \"comentarios\": 0, \"curtido_por_mim\": false } }\n```\n\n**422 `conteudo_reprovado`** — a IA barrou; nada foi gravado:\n```json\n{ \"erro\": { \"codigo\": \"conteudo_reprovado\",\n            \"mensagem\": \"Este conteudo viola as regras da comunidade.\",\n            \"motivo\": \"violencia\" } }\n```\n`motivo` assume `violencia`, `odio`, `assedio`, `conteudo_perigoso` ou `outro`.\n\n**503 `moderacao_indisponivel`** — nao foi possivel analisar:\n```json\n{ \"erro\": { \"codigo\": \"moderacao_indisponivel\",\n            \"mensagem\": \"Nao foi possivel analisar seu post agora. Tente de novo.\" } }\n```\n\n**422 `dados_invalidos`** — conteudo vazio ou acima de 280 caracteres.\n\n## Na tela\n\n- [ ] **201** — inserir a postagem no topo do feed e limpar a caixa\n- [ ] **422 `conteudo_reprovado`** — MANTER o texto, mostrar `motivo` sem\n      acusar o usuario\n- [ ] **503 `moderacao_indisponivel`** — MANTER o texto e oferecer \"tentar de novo\"\n- [ ] **422 `dados_invalidos`** — destacar o limite de caracteres\n\nDurante a espera, deixar claro que esta analisando: a chamada a IA leva\nsegundos e o usuario nao pode achar que travou.\n\n- [ ] Contador de caracteres (280)\n- [ ] Bloquear envio duplo",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -75,8 +75,8 @@
         "RNF07"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-28T00:20:50",
-      "atualizado_por": "bruno"
+      "atualizado_em": "2026-10-30T18:54:20",
+      "atualizado_por": "gustavo"
     },
     {
       "id": "T-031",

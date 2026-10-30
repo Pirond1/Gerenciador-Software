@@ -157,7 +157,7 @@
       "id": "T-012",
       "titulo": "Definir politica de moderacao",
       "descricao": "Decisoes de projeto, sem codigo. Determinam o comportamento da T-021 e os casos de teste da T-049.\n\n- [ ] API fora do ar: bloqueia (503) ou publica sem moderar?\n- [ ] Tempo maximo de espera antes de desistir\n- [ ] Existe recurso quando a IA erra?\n- [ ] O que fica registrado de um post reprovado\n- [ ] O `motivo` da reprovacao e mostrado ao usuario?\n- [ ] Comentario tambem passa por moderacao?\n\nVira RNF na T-005.",
-      "status": "a_fazer",
+      "status": "concluido",
       "prioridade": "alta",
       "entrega": null,
       "requisitos": [
@@ -166,7 +166,7 @@
         "RNF07"
       ],
       "criado_em": "2026-09-01T09:00:00",
-      "atualizado_em": "2026-09-04T22:08:46",
+      "atualizado_em": "2026-10-30T18:54:25",
       "atualizado_por": "gustavo"
     },
     {
